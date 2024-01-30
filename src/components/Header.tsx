@@ -26,7 +26,7 @@ const Header = () => {
     <header className='w-full h-[85px] bg-[#f3f3f3] absolute'>
       <nav className='w-full h-full flex justify-center items-center'>
         <div className='w-2/5 h-full flex justify-start items-center'>
-          <img src="GNS-2.webp" alt="Génesis_Logo" className='w-[210px] h-[40px]' />
+          <img src="GNS-2.webp" alt="Génesis_Logo" className='w-[200px] h-[45px]' />
         </div>
         <ul className='w-3/5 flex justify-evenly '>
           {

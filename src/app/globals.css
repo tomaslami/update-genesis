@@ -10,3 +10,31 @@
   font-family: 'Nunito', sans-serif;
 
 }
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #002337;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f3f3f3;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(calc(-300px * 5 - 0.5rem * 10));
+  }
+
+}
+
+.animate-scroll {
+  animation: scroll 13s linear infinite;
+}
