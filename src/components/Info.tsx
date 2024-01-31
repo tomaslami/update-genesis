@@ -3,7 +3,7 @@ import InfoCard from './tools/InfoCard'
 
 const Info = () => {
   return (
-    <section id='info' className='w-full h-screen bg-[#002337] flex justify-center items-center flex-col'>
+    <section id='info' className='w-full min-h-screen bg-[#002337] flex justify-center items-center flex-col'>
       <h1 className='h-1/12 w-full text-center text-3xl p-8 text-white font-semibold nunito '>SERVICIOS DE REHABILITACION</h1>
       <div className='h-11/12 w-full flex-wrap flex justify-center items-center '>
         <InfoCard

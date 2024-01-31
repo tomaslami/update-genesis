@@ -10,12 +10,11 @@ const Carousel = () => {
 
   return (
     <article className='w-full h-screen bg-[#f3f3f3] flex flex-col justify-center items-center'>
-
-      <span className='bg-[#002337] w-full h-[100px]'></span>
-      <div className='flex justify-center flex-row items-center w-full h-full order-1 z-0'>
+      <div className='flex justify-center  items-center w-full h-full'>
+        <span className='bg-[#002337] w-full h-[150px] absolute '></span>
         <CardsCarousel />
       </div>
-      <div className='flex justify-center items-center w-full h-full order-1'>
+      <div className='flex justify-center items-center w-full h-full'>
       </div>
     </article>
   )

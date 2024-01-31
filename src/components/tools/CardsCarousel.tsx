@@ -1,8 +1,14 @@
-import React from 'react'
+import { Html } from 'next/document';
+import React, { useEffect, useRef } from 'react';
+import SwiperCore from 'swiper';
+import { Autoplay } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/swiper-bundle.css';
 
 
 
 const CardsCarousel = () => {
+
 
   const CarouselElements = [
     {
@@ -11,7 +17,7 @@ const CardsCarousel = () => {
     },
     {
       id: 2,
-      img: '../../carousel/Imagen2.jpg',
+      img: '../../carousel/Imagen7.webp',
     },
     {
       id: 3,
@@ -31,29 +37,44 @@ const CardsCarousel = () => {
     },
     {
       id: 7,
-      img: '../../carousel/Imagen7.webp',
+      img: '../../carousel/Imagen2.jpg',
     },
     {
       id: 8,
-      img: '../../carousel/Imagen8.webp',
+      img: '../../carousel/Imagen9.webp',
     },
     {
       id: 9,
-      img: '../../carousel/Imagen9.webp',
+      img: '../../carousel/Imagen8.webp',
     }
   ]
 
-  const duplicatedElements = [...CarouselElements, ...CarouselElements, ...CarouselElements];
+
 
   return (
-    <div className='flex w-full h-full overflow-hidden gap-10'>
-      {duplicatedElements.map((item: { id: React.Key | null | undefined; img: string | undefined }) => (
-        <div key={item.id} className='flex justify-center items-center  w-[250px] h-[300px] flex-shrink-0 animate-scroll scroll'>
-          <img src={item.img} alt="Consultorio Génesis" className='w-full h-full' />
-        </div>
-      ))}
-    </div>
-  )
-}
 
-export default CardsCarousel
+    <div className='w-full h-full justify-center items-center flex px-5 gap-20 '>
+
+      <Swiper
+        centeredSlides={true}
+        centerInsufficientSlides={true}
+        slidesPerView={3}
+        spaceBetween={40}
+        loop={true}
+        autoplay={{
+          delay: 1000,
+          disableOnInteraction: false,
+        }}
+        className='overflow-hidden w-full h-full flex justify-center items-center '
+      >
+        {CarouselElements.map(({ id, img }) => (
+          <SwiperSlide key={id} className='w-[200px] h-[300px] justify-center items-center flex'>
+            <img src={img} alt={`Imagen ${id}`} className='w-full h-full flex justify-center items-center rounded-xl' />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </div>
+  );
+};
+
+export default CardsCarousel;

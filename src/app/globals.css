@@ -24,17 +24,17 @@
   background-color: #f3f3f3;
 }
 
-@keyframes scroll {
+@keyframes slide {
+
   0% {
     transform: translateX(0);
   }
 
   100% {
-    transform: translateX(calc(-300px * 5 - 0.5rem * 10));
+    transform: translateX(-100%);
   }
-
 }
 
-.animate-scroll {
-  animation: scroll 13s linear infinite;
+.slide {
+  animation: slide 10s linear infinite;
 }
