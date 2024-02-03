@@ -1,0 +1,6 @@
+.professional-card {
+  width: 550px;
+  height: 300px;
+  background: linear-gradient(to right, #002337 30%, #d6d4d4 30%);
+  border-radius: 60px;
+}

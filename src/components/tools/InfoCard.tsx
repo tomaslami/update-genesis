@@ -1,27 +1,49 @@
-import React from 'react'
+"use client"
+import React, { useState } from 'react';
 
 type InfoCardProps = {
-  title: string
-  description: string
-  image: string
+  title: string;
+  description: string;
+  image: string;
+  information_added: string;
+};
 
-}
+const InfoCard = ({ title, description, image, information_added }: InfoCardProps) => {
+  const [showInfo, setShowInfo] = useState(false);
 
-const InfoCard = ({ title, description, image }: InfoCardProps) => {
+  const handleToggleInfoAdd = () => {
+    setShowInfo(!showInfo);
+  };
+
+  //  const handleToggleInfoDelete = () => {
+  //  setShowInfo(!showInfo);
+  // };
+
+  const mergedText = showInfo ? `${description} ${information_added}` : description;
+  const descriptionToShow = showInfo ? mergedText : `${description}..`;
+
   return (
-    <div className='w-1/2 h-10/12 p-10 flex justify-center items-center'>
-      <div className='w-[502px] h-[174px] gap-3 flex flex-col justify-center items-center'>
-        <div className='w-full h-1/5 flex justify-start items-center flex-row  gap-3'>
-          <h1 className='text-white font-medium text-2xl'>{title}</h1>
+    <div className='w-1/2 h-10/12  flex justify-center items-center'>
+      <div className='w-[502px] h-[350px] gap-3 flex flex-col justify-start items-center'>
+        <div className='w-full h-1/5 flex justify-start items-center flex-row gap-3'>
+          <h1 className=' text-white font-medium text-2xl'>{title}</h1>
           <img src={image} alt='Logo_Especial' />
         </div>
         <div className='w-full flex flex-col gap-3'>
-          <h2 className=' text-white font-normal text-[16px]'>{description}</h2>
-          <button className=' text-[#002337] bg-white rounded-md w-[115px] h-[33px] font-bold'>Ver más</button>
+          <p className={`h-11/12 w-full text-clip text-white font-normal text-[16px] ${showInfo ? 'max-h-[500px] overflow-y-auto' : ''}`}>{descriptionToShow}</p>
+          <div className='flex justify-start items-center w-full h-1/12'>
+
+            {!showInfo && (
+              <button onClick={handleToggleInfoAdd} className='text-[#002337] bg-white rounded-md w-[115px] h-[33px] font-bold'>
+                Ver más
+              </button>
+            )}
+          </div>
+
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default InfoCard
+export default InfoCard;
