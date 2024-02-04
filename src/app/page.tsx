@@ -14,8 +14,10 @@ export default function Home() {
       <main className="">
         <PrincipalLanding />
         <Info />
-        <AboutUs />
-        <Carousel />
+        <section className="w-full min-h-screen">
+          <AboutUs />
+          <Carousel />
+        </section>
         <Professionals />
         <Footer />
       </main>

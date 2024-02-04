@@ -114,30 +114,29 @@ export const FooterElements = [
   }
 ]
 
-export
-  const NavElements = [
-    {
-      id: 1,
-      title: 'SERVICIOS',
-      link: '#servicio'
-    },
-    {
-      id: 2,
-      title: 'NOSOTROS',
-      link: '#nosotros'
+export const NavElements = [
+  {
+    id: 1,
+    title: 'SERVICIOS',
+    link: '#servicios'
+  },
+  {
+    id: 2,
+    title: 'NOSOTROS',
+    link: '#nosotros'
 
-    },
-    {
-      id: 3,
-      title: 'PROFESIONALES',
-      link: '#profesionales'
-    },
-    {
-      id: 4,
-      title: 'CONTACTO',
-      link: '#contacto'
-    }
-  ]
+  },
+  {
+    id: 3,
+    title: 'PROFESIONALES',
+    link: '#profesionales'
+  },
+  {
+    id: 4,
+    title: 'CONTACTO',
+    link: '#contacto'
+  }
+]
 
 
 export const variants = {
