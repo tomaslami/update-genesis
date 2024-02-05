@@ -3,7 +3,7 @@ import React from 'react'
 
 const FooterIcons = () => {
   return (
-    <div className='lg:w-1/2 w-full h-3/6 flex flex-col justify-center items-center gap-10'>
+    <div className='lg:w-2/3 w-full h-3/6 flex flex-col justify-center items-center gap-10'>
       {FooterElements.map(footer => (
         <div className='w-full flex justify-center items-center'>
 

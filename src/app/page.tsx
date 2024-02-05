@@ -5,14 +5,13 @@ import Header from "@/components/Header";
 import Info from "@/components/Info";
 import PrincipalLanding from "@/components/PrincipalLanding";
 import Professionals from "@/components/Professionals";
-import Image from "next/image";
 
 export default function Home() {
   return (
     <>
       <Header />
+      <PrincipalLanding />
       <main className="">
-        <PrincipalLanding />
         <Info />
         <section className="w-full min-h-screen">
           <AboutUs />
