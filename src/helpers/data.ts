@@ -108,7 +108,7 @@ export const FooterElements = [
   },
   {
     id: 3,
-    text: 'CABA, Paraguay 1275',
+    text: 'CABA - Paraguay y Talcahuano, Recoleta',
     icon: '/icons/UBI.svg',
     img_alt: 'Ubicación del consultorio Génesis'
   }
