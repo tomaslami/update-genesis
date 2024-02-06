@@ -17,15 +17,15 @@ const FooterIcons = () => {
           </ul>
         </div>
       ))}
-      <ul className='w-full flex justify-between'>
+      <ul className='w-full flex justify-between pt-10 lg:pt-0'>
         <li>
-          <img src="/icons/IG.svg" alt="Instagram" />
+          <img src="/icons/IG.svg" alt="Instagram" className='' />
         </li>
         <li>
-          <img src="/icons/FB.svg " alt="Facebook" />
+          <img src="/icons/FB.svg " alt="Facebook" className='' />
         </li>
         <li>
-          <img src="/icons/WPP.svg" alt="WhatsApp" />
+          <img src="/icons/WPP.svg" alt="WhatsApp" className='' />
         </li>
       </ul>
     </div>

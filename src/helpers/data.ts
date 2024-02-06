@@ -72,25 +72,25 @@ export const CarouselElements = [
 export const InfoCardElements = [
   {
     id: 1,
-    title: 'QUIROPRAXIA',
-    description: 'Es un método utilizado para diagnosticar, tratar y prevenir alteraciones del sistema músculo-esquelético, y de los desórdenes que puedan provocar en la función del sistema nervioso y la salud.',
-    information_added: 'Pone especial énfasis en la relación del sistema nervioso en relación con los demás sistemas respecto al equilibrio general del cuerpo. El tratamiento se realiza a traves de técnicas manuales, con ajustes manuales específicos. Esta indicado  para tratar dolores como dolor de espalda, dolor de cabeza, patologias relacionadas con la columna como pinzamientos, dolores articulares, entre otros.',
-    image: '/icons/SKELETON.svg'
-  },
-  {
-    id: 2,
     title: 'R.P.G',
     description: 'El método RPG (Reeducacion Postural Global) es un método basado en la individualidad de cada paciente, partiendo de los síntomas que presenta para así detectar y tratar la causa.',
     information_added: 'El terapeuta evalúa la anatomía del paciente, sus puntos de tensión, sus dolencias y las posturas que adopta en estatica y en movimiento. Se diseña un plan de tratamiento individualizado, donde el paciente pasa a formar parte de manera activa del proceso de recuperación.',
     image: '/icons/BONES.svg'
   },
   {
-    id: 3,
+    id: 2,
     title: 'OSTEOPATIA',
-    description: 'La Osteopatía es una terapéutica manual con bases filosóficas y científicas. Considera al cuerpo como una totalidad, la Osteopatía se basa en conocimientos científicos, de la anatomía, fisiología y biomecánica.',
+    description: 'La Osteopatía es una terapéutica manual con bases filosóficas y científicas. La Osteopatía se basa en conocimientos científicos de la anatomía, fisiología y biomecánica.',
     information_added: 'Cuando algunas estructuras del cuerpo pierden su movimiento natural, generan con el tiempo síntomas y dificiultades. El osteópata con maniobras manuales permite a la estructura corporal recuperar su movilidad normal y la salud perdidas.',
     image: '/icons/BODY.svg'
-  }
+  },
+  {
+    id: 1,
+    title: 'QUIROPRAXIA',
+    description: 'Es un método utilizado para diagnosticar, tratar y prevenir alteraciones del sistema músculo-esquelético, y de los desórdenes que puedan provocar en la función del sistema nervioso y la salud.',
+    information_added: 'Esta indicado  para tratar dolores como dolor de espalda, dolor de cabeza, patologias relacionadas con la columna como pinzamientos, dolores articulares, entre otros.',
+    image: '/icons/SKELETON.svg'
+  },
 ]
 
 export const FooterElements = [

@@ -2,11 +2,11 @@ import React from 'react'
 
 const ContactForm = () => {
   return (
-    <div className='w-full h-full flex justify-center lg:items-start items-center flex-col gap-3'>
+    <div className='w-full h-full flex justify-center lg:items-start items-center flex-col gap-3 '>
       <h1 className='h-1/12 w-full lg:text-start text-center text-3xl text-white font-semibold nunito '>Contactanos</h1>
       <form
         id="miFormulario"
-        className="sm:w-[400px] w-[300px] h-11/12 flex justify-center items-center flex-col gap-6 "
+        className="px-3 sm:w-[400px] w-[300px] h-11/12 flex justify-center items-center flex-col gap-6 "
         action="https://formspree.io/"
         method="POST"
       >

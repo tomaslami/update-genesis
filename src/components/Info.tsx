@@ -6,7 +6,7 @@ const Info = () => {
   return (
     <section id='servicios' className='w-full min-h-screen bg-[#002337] flex justify-center items-center flex-col overflow-hidden'>
       <h1 className='h-1/12 w-full text-center md:text-3xl text-xl pt-8 text-white font-semibold nunito '>SERVICIOS DE REHABILITACION</h1>
-      <div className='h-11/12 w-full md:flex-wrap flex-nowrap flex-col md:flex-row flex items-start md:items-center justify-center p-8'>
+      <div className='h-11/12 w-full md:flex-wrap flex-nowrap flex-col md:flex-row flex items-start md:items-center justify-center p-6 lg:p-8'>
         {InfoCardElements.map(info => (
           <InfoCard
             key={info.id}
