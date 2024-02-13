@@ -67,8 +67,8 @@ export const InfoCardElements = [
   {
     id: 2,
     title: 'QUIROPRAXIA',
-    description: 'Es un método utilizado para diagnosticar, tratar y prevenir alteraciones del sistema músculo-esquelético, y de los desórdenes que puedan provocar en la función del sistema nervioso y la salud.',
-    information_added: 'Esta indicado  para tratar dolores como dolor de espalda, dolor de cabeza, patologias relacionadas con la columna como pinzamientos, dolores articulares, entre otros.',
+    description: 'Es un método utilizado para diagnosticar, trata el sistema nervioso autónomo, liberando las subluxaciones vertebrales permitendo al cuerpo recobrar el estado fisiológico.',
+    information_added: 'Está indicado para tratar molestias como dolor de espalda, dolor de cabeza, patologias relacionadas con la columna como pinzamientos, dolores articulares, entre otros.',
     image: '/icons/SKELETON.svg'
   },
   {
