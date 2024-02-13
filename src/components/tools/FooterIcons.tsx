@@ -17,7 +17,7 @@ const FooterIcons = () => {
           </ul>
         </div>
       ))}
-      <ul className='w-full flex justify-between pt-10 lg:pt-0'>
+      <ul className='w-full flex lg:justify-between justify-around pt-10 lg:pt-0'>
         <li>
           <a href="https://www.instagram.com/consultoriogenesis.caba/">
             <img src="/icons/IG.svg" alt="Instagram" className='' />
