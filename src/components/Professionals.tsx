@@ -12,9 +12,9 @@ const Professionals = () => {
       </div>
       <div className='w-full h-full flex flex-col gap-24 items-end py-10' >
         {CardProfessionalsElements.map(pro => (
-          <div className='w-full flex ' style={{ flexDirection: pro.id % 2 === 0 ? 'row-reverse' : 'row' }}>
+          <div key={pro.id}
+            className='w-full flex ' style={{ flexDirection: pro.id % 2 === 0 ? 'row-reverse' : 'row' }}>
             <ProfessionalCard
-              key={pro.id}
               image={pro.img}
               name={pro.name}
               title={pro.title}

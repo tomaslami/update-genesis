@@ -1,5 +1,4 @@
 import React from 'react'
-import { FooterElements } from '@/helpers/data'
 import FooterIcons from './tools/FooterIcons'
 import ContactForm from './tools/ContactForm'
 

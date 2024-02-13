@@ -1,6 +1,5 @@
 import React from 'react'
 import '../tools/styles/special-styles.css'
-import ProfessionalsMobile from './ProfessionalsMobile'
 
 type ProfessionalCardProps = {
   image: string

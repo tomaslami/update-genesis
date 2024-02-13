@@ -1,20 +1,14 @@
-"use client"
-
-import { NavElements, variants } from '@/helpers/data'
-import { AnimatePresence, motion, useCycle, useScroll } from 'framer-motion'
-import React, { useEffect } from 'react'
+'use client'
+import { motion } from 'framer-motion'
+import React from 'react'
 
 const NavBarMobile = () => {
-  const [mobileNav, toggleMobileNav] = useCycle(false, true)
 
 
   return (
     <div className='w-full h-full md:hidden flex justify-end items-center px-5'>
-      <div className={` z-10 ${mobileNav ? 'open' : 'closed'} ${mobileNav ? 'fixed' : 'flex'}`}>
-
+      <div className=''>
         <motion.button
-          animate={mobileNav ? 'open' : 'closed'}
-          onClick={() => { toggleMobileNav() }}
           className='flex flex-col space-y-1'>
           <motion.span
             variants={{
