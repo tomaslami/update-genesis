@@ -26,7 +26,7 @@ const CardsCarousel = () => {
 
 
   return (
-    <div className='w-full md:h-[500px] h-[300px] justify-center items-center flex gap-20 lg:px-2 '>
+    <div className='w-full lg:h-[500px] h-[300px] justify-center items-center flex gap-20 lg:px-2 '>
       <Swiper
         centeredSlides={true}
         centerInsufficientSlides={true}
