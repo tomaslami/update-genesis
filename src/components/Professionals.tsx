@@ -10,7 +10,7 @@ const Professionals = () => {
       <div className='flex flex-col justify-center items-center w-full h-1/5  '>
         <h1 className='w-full text-center text-2xl text-[#002337] font-extrabold '>NUESTROS PROFESIONALES</h1>
       </div>
-      <div className='w-full h-full flex flex-col gap-24 items-end' >
+      <div className='w-full h-full flex flex-col lg:gap-24 gap-5 items-end' >
         {CardProfessionalsElements.map(pro => (
           <div key={pro.id}
             className='w-full flex ' style={{ flexDirection: pro.id % 2 === 0 ? 'row-reverse' : 'row' }}>
