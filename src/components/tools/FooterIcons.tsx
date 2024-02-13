@@ -19,13 +19,19 @@ const FooterIcons = () => {
       ))}
       <ul className='w-full flex justify-between pt-10 lg:pt-0'>
         <li>
-          <img src="/icons/IG.svg" alt="Instagram" className='' />
+          <a href="https://www.instagram.com/consultoriogenesis.caba/">
+            <img src="/icons/IG.svg" alt="Instagram" className='' />
+          </a>
         </li>
         <li>
-          <img src="/icons/FB.svg " alt="Facebook" className='' />
+          <a href="https://www.facebook.com/consultoriogenesis.caba">
+            <img src="/icons/FB.svg " alt="Facebook" className='' />
+          </a>
         </li>
         <li>
-          <img src="/icons/WPP.svg" alt="WhatsApp" className='' />
+          <a href="https://api.whatsapp.com/send?phone=5491122519048&amp;text=G-%20Hola%20encontr%C3%A9%20tus%20servicios%20en%20Google.%20Quisiera%20pedir%20informaci%C3%B3n%20sobre%20tratamientos." target="_blank">
+            <img src="/icons/WPP.svg" alt="WhatsApp" className='' />
+          </a>
         </li>
       </ul>
     </div>

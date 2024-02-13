@@ -24,7 +24,7 @@ const InfoCard = ({ title, description, image, information_added }: InfoCardProp
   const descriptionToShow = showInfo ? mergedText : `${description}..`;
 
   return (
-    <div className='md:w-1/2 w-full h-10/12  flex justify-center items-center md:px-4'>
+    <div className='md:w-1/2 w-full h-10/12  flex justify-center items-center md:px-4 '>
       <div className='w-[502px] md:h-[275px] h-[250px]  flex flex-col justify-start items-center'>
         <div className='w-full h-1/5 flex justify-start items-center flex-row gap-3'>
           <h1 className=' text-white font-medium text-2xl'>{title}</h1>

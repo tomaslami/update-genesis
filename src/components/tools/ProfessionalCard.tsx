@@ -6,29 +6,42 @@ type ProfessionalCardProps = {
   image: string
   name: string,
   title: string,
-  description: string,
-  socialMedia: string,
+  item1: string,
+  item2: string,
+  item3: string,
+  item4: string
 }
 
-const ProfessionalCard = ({ image, name, title, description, socialMedia }: ProfessionalCardProps) => {
+const ProfessionalCard = ({ image, name, title, item1, item2, item3, item4 }: ProfessionalCardProps) => {
   return (
-    <div className='md:w-1/2 w-full flex justify-center items-center'>
-      <div className='professional-card hidden lg:flex justify-start items-center py-[40px] pl-[40px] pr-[25px]'>
-        <div className='w-2/5 h-full flex justify-start items-center flex-col'>
-          <div className='w-full h-2/3 flex justify-start items-center'>
-            <img src={image} alt="Profesional Génesis" className='w-[100px]' />
-          </div>
-          <div className='w-full h-1/3 flex justify-start items-end'>
-            <a target='_blank' href={socialMedia}><img src="/icons/LINKEDIN.svg" alt="" /></a>
+    <div className='md:w-1/2 w-full flex justify-center items-center card-container'>
+      <div className='professional-card flex lg:flex-row flex-col justify-start items-center  md:pl-[50px] '>
+        <div className='w-2/6 md:w-2/6 h-2/6 lg:full flex justify-center items-center flex-col'>
+          <div className='w-full h-[178px] flex justify-center items-center'>
+            <img src={image} alt="Profesional Génesis" className='w-[120px]' />
           </div>
         </div>
-        <div className='w-3/5 h-4/5 flex justify-starts items-start flex-col'>
-          <h1 className='text-3xl font-bold pb-1'>{name}</h1>
+        <div className='w-5/6 h-4/6 md:h-full flex md:justify-center md:items-start justify-center items-center flex-col'>
+          <h1 className='w-full md:text-3xl text-xl font-bold md:pb-1 text-center md:text-start '>{name}</h1>
           <h2 className='text-xl font-normal'>{title}</h2>
-          <h3 className='text-base font-light'>{description}</h3>
+          <ul className='p-3 '>
+            <li className='list-disc'>
+              <h3 className='text-sm font-light '>{item1}</h3>
+            </li>
+            <li className='list-disc'>
+              <h4 className='text-sm font-light '>{item2}</h4>
+            </li>
+            <li className='list-disc'>
+              <h5 className='text-sm font-light '>{item3}</h5>
+            </li>
+            {
+              item4 === '' ? <li></li> : <li className='list-disc'>
+                <h6 className='text-sm font-light '>{item4}</h6>
+              </li>
+            }
+          </ul>
         </div>
       </div>
-      <ProfessionalsMobile image={image} name={name} title={title} description={description} socialMedia={socialMedia} />
     </div>
   )
 }

@@ -1,37 +1,24 @@
 export const CardProfessionalsElements = [
   {
     id: 1,
-    img: '/Profesional.png',
-    name: 'Albert Einstein',
-    title: 'Licenciado en Kinesiología y Fisiatría ',
-    description: 'Universidad de Buenos Aires',
-    socialMedia: 'https://www.facebook.com/'
+    img: '/GABRIELA.png',
+    name: 'Lic. Gabriela de Marco',
+    title: 'Osteopatía ',
+    item1: 'Lic. Kinesiologia y Fisiatria Universidad San Martin',
+    item2: 'Diplomatura Osteopatia EOM 2015-2020',
+    item3: 'Actual kinesiologa del Hospital Santojanni',
+    item4: ''
   },
   {
     id: 2,
-    img: '/Profesional.png',
-    name: 'Isaac Newton',
-    title: 'Licenciado en Kinesiología y Fisiatría ',
-    description: 'Universidad de Buenos Aires',
-    socialMedia: 'https://www.facebook.com/'
-  },
-  {
-    id: 3,
-    img: '/Profesional.png',
-    name: 'Nikola Tesla',
-    title: 'Licenciado en Kinesiología y Fisiatría ',
-    description: 'Universidad de Buenos Aires',
-    socialMedia: 'https://www.facebook.com/'
-  },
-  {
-    id: 4,
-    img: '/Profesional.png',
-    name: 'Marie Curie',
-    title: 'Licenciado en Kinesiología y Fisiatría ',
-    description: 'Universidad de Buenos Aires',
-    socialMedia: 'https://www.facebook.com/'
+    img: '/ORLANDO.png',
+    name: 'Lic. Orlando Cáceres',
+    title: 'RPG',
+    item1: 'Lic. en kinesiología y fisiatría UBA',
+    item2: 'Posgrado: “REEDUCATION POSTURALE GLOBALE” dictado por Phillip E. Souchard (2010)',
+    item3: 'Experiencia en docencia en catedra de biomecánica  y kinesioterapia',
+    item4: 'Experiencia laboral como kinesiólogo del Club Atlético Huracan'
   }
-
 ]
 
 export const CarouselElements = [
@@ -74,22 +61,22 @@ export const InfoCardElements = [
     id: 1,
     title: 'R.P.G',
     description: 'El método RPG (Reeducacion Postural Global) es un método basado en la individualidad de cada paciente, partiendo de los síntomas que presenta para así detectar y tratar la causa.',
-    information_added: 'El terapeuta evalúa la anatomía del paciente, sus puntos de tensión, sus dolencias y las posturas que adopta en estatica y en movimiento. Se diseña un plan de tratamiento individualizado, donde el paciente pasa a formar parte de manera activa del proceso de recuperación.',
+    information_added: 'El terapeuta evalúa la anatomía del paciente, sus puntos de tensión, sus dolencias y las posturas que adopta en estatica y en movimiento.',
     image: '/icons/BONES.svg'
   },
   {
     id: 2,
-    title: 'OSTEOPATIA',
-    description: 'La Osteopatía es una terapéutica manual con bases filosóficas y científicas. La Osteopatía se basa en conocimientos científicos de la anatomía, fisiología y biomecánica.',
-    information_added: 'Cuando algunas estructuras del cuerpo pierden su movimiento natural, generan con el tiempo síntomas y dificiultades. El osteópata con maniobras manuales permite a la estructura corporal recuperar su movilidad normal y la salud perdidas.',
-    image: '/icons/BODY.svg'
-  },
-  {
-    id: 1,
     title: 'QUIROPRAXIA',
     description: 'Es un método utilizado para diagnosticar, tratar y prevenir alteraciones del sistema músculo-esquelético, y de los desórdenes que puedan provocar en la función del sistema nervioso y la salud.',
     information_added: 'Esta indicado  para tratar dolores como dolor de espalda, dolor de cabeza, patologias relacionadas con la columna como pinzamientos, dolores articulares, entre otros.',
     image: '/icons/SKELETON.svg'
+  },
+  {
+    id: 3,
+    title: 'OSTEOPATIA',
+    description: 'La Osteopatía es una terapéutica manual con bases filosóficas y científicas. La Osteopatía se basa en conocimientos científicos de la anatomía, fisiología y biomecánica.',
+    information_added: 'El osteópata con maniobras manuales permite a la estructura corporal recuperar su movilidad normal y la salud perdidas.',
+    image: '/icons/BODY.svg'
   },
 ]
 
@@ -137,7 +124,6 @@ export const NavElements = [
     link: '#contacto'
   }
 ]
-
 
 export const variants = {
   open: {

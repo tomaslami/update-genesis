@@ -5,7 +5,7 @@ import Carousel from './Carousel'
 
 const AboutUs = () => {
   return (
-    <main id='nosotros' className='w-full md:min-h-screen h-screen flex flex-col justify-center items-center gap-5 lg:gap-0  '>
+    <main id='nosotros' className='w-full md:min-h-screen h-screen flex flex-col justify-center items-center gap-5 lg:gap-8'>
       <div className='flex justify-center items-center w-full h-2/12 '>
         <h1 className='text-center text-3xl text-[#002337] font-extrabold '>¿QUIÉNES SOMOS?</h1>
       </div>
