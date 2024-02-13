@@ -1,6 +1,16 @@
 export const CardProfessionalsElements = [
   {
     id: 1,
+    img: '/ORLANDO.png',
+    name: 'Lic. Orlando Cáceres',
+    title: 'RPG',
+    item1: 'Lic. en kinesiología y fisiatría UBA',
+    item2: 'Posgrado: “REEDUCATION POSTURALE GLOBALE” dictado por Phillip E. Souchard (2010)',
+    item3: 'Experiencia en docencia en catedra de biomecánica  y kinesioterapia',
+    item4: 'Experiencia laboral como kinesiólogo del Club Atlético Huracan'
+  },
+  {
+    id: 2,
     img: '/GABRIELA.png',
     name: 'Lic. Gabriela de Marco',
     title: 'Osteopatía ',
@@ -9,16 +19,6 @@ export const CardProfessionalsElements = [
     item3: 'Actual kinesiologa del Hospital Santojanni',
     item4: ''
   },
-  {
-    id: 2,
-    img: '/ORLANDO.png',
-    name: 'Lic. Orlando Cáceres',
-    title: 'RPG',
-    item1: 'Lic. en kinesiología y fisiatría UBA',
-    item2: 'Posgrado: “REEDUCATION POSTURALE GLOBALE” dictado por Phillip E. Souchard (2010)',
-    item3: 'Experiencia en docencia en catedra de biomecánica  y kinesioterapia',
-    item4: 'Experiencia laboral como kinesiólogo del Club Atlético Huracan'
-  }
 ]
 
 export const CarouselElements = [
