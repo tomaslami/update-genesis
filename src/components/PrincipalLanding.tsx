@@ -2,7 +2,7 @@ import React from 'react'
 
 const PrincipalLanding = () => {
   return (
-    <section className='min-h-screen w-full flex justify-center items-end bg-cover bg-no-repeat bg-center bg-fixed bg-[url(/FondoMobile.webp)] md:bg-[url(/PORTADA.webp)]' >
+    <section className='min-h-screen w-full flex justify-center items-end bg-cover bg-no-repeat bg-center bg-[url(/FondoMobile.webp)] md:bg-[url(/PORTADA.webp)]' >
       <div className='w-full h-full flex justify-end items-center flex-col pb-5'>
         <a href="#servicios" className='flex justify-center items-center flex-col'>
           <h3 className='text-white font-medium text-base'>VER MÁS</h3>
