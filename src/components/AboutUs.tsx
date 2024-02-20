@@ -12,7 +12,7 @@ const AboutUs = () => {
         <div className='lg:w-1/2 w-full flex justify-end items-center'>
           <img src="/ABOUT-US.webp" alt="Ejercicios" className='lg:w-[500px] w-[400px] h-[200px] lg:h-[300px]' />
         </div>
-        <div className='w-full lg:w-1/2 h-full flex justify-center items-start flex-col'>
+        <div className='w-full lg:w-1/2 h-full flex justify-center items-center lg:items-start flex-col'>
           <p className='w-10/12 font-bold md:text-justify text-center text-base md:text-lg'>
             Somos <span className='text-[#F28C38]'>GENESIS</span>, un centro especializado en la evaluación y tratamiento de patologias osteomusculares. Es atendido única y exclusivamente por profesionales licenciados en Kinesiología y Fisiatría cada uno especializado en su método y con una amplia trayectoria profesional en centros kinesiológicos y hospitales de renombre.
           </p>
