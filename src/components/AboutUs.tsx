@@ -14,7 +14,7 @@ const AboutUs = () => {
         </div>
         <div className='w-full lg:w-1/2 h-full flex justify-center items-start flex-col'>
           <p className='w-10/12 font-bold md:text-justify text-center text-base md:text-lg'>
-            Somos <span className='text-[#F28C38]'>GENESIS</span> es un centro especializado en la evaluación y tratamiento de patologias osteomusculares. Es atendido única y exclusivamente por profesionales licenciados en Kinesiología y Fisiatría cada uno especializado en su método y con una amplia carrera en la profesión habiendo ejercido en centros y hospitales de renombre tanto del ambito pubico como privado.
+            Somos <span className='text-[#F28C38]'>GENESIS</span>, un centro especializado en la evaluación y tratamiento de patologias osteomusculares. Es atendido única y exclusivamente por profesionales licenciados en Kinesiología y Fisiatría cada uno especializado en su método y con una amplia trayectoria profesional en centros kinesiológicos y hospitales de renombre.
           </p>
         </div>
       </div>
