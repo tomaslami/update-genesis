@@ -28,7 +28,7 @@ const FooterIcons = () => {
           </a>
         </li>
         <li>
-          <a target='_blank' href="https://api.whatsapp.com/send?phone=5491122519048&amp;text=G-%20Hola%20encontr%C3%A9%20tus%20servicios%20en%20Google.%20Quisiera%20pedir%20informaci%C3%B3n%20sobre%20tratamientos." target="_blank">
+          <a href="https://api.whatsapp.com/send?phone=5491122519048&amptext=G-%20Hola%20encontr%C3%A9%20tus%20servicios%20en%20Google.%20Quisiera%20pedir%20informaci%C3%B3n%20sobre%20tratamientos." target="_blank">
             <img src="/icons/WPP.svg" alt="WhatsApp" className='' />
           </a>
         </li>
