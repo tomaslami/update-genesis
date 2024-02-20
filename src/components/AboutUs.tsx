@@ -4,7 +4,7 @@ import React from 'react'
 
 const AboutUs = () => {
   return (
-    <main id='nosotros' className='w-full md:h-[500px] h-[600px] flex flex-col justify-center items-center gap-5 lg:gap-8 '>
+    <main id='nosotros' className='w-full md:h-[500px] h-[650px] flex flex-col justify-center items-center gap-5 lg:gap-8 '>
       <div className='flex justify-center items-center w-full h-1/12 '>
         <h1 className='text-center text-3xl text-[#002337] font-extrabold '>¿QUIÉNES SOMOS?</h1>
       </div>
