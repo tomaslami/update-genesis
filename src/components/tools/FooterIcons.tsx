@@ -3,20 +3,18 @@ import React from 'react'
 
 const FooterIcons = () => {
   return (
-    <div className='lg:w-2/3 w-full h-3/6 flex flex-col justify-center items-center gap-10 p-3'>
+    <div className='lg:w-2/3 w-full h-3/6 flex flex-col justify-center items-center gap-7 '>
       {FooterElements.map(footer => (
-        <div className='w-full flex justify-center items-center '>
-          <ul key={footer.id} className='w-full flex justify-start items-center flex-row gap-4 '>
-            <li>
-              <img src={footer.icon} alt={footer.img_alt} className='text-white text-lg font-light' />
-            </li>
-            <li>
+        <div className='w-full flex justify-center items-center'>
+          <ul className='w-full flex justify-center items-center flex-col gap-2 pl-1'>
+            <li key={footer.id} className='w-full flex justify-items-center items-center flex-row gap-4 '>
+              <img src={footer.icon} alt={footer.img_alt} className='text-white text-lg font-light w-[24px] h-[24px]' />
               <h4 className='text-white text-sm md:text-lg font-normal'>{footer.text}</h4>
             </li>
           </ul>
         </div>
       ))}
-      <ul className='w-full flex lg:justify-between justify-around pt-10 lg:pt-0'>
+      <ul className='w-full flex justify-between  lg:pt-0'>
         <li>
           <a target='_blank' href="https://www.instagram.com/consultoriogenesis.caba/">
             <img src="/icons/IG.svg" alt="Instagram" className='' />
