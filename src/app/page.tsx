@@ -10,8 +10,8 @@ export default function Home() {
   return (
     <>
       <Header />
-      <PrincipalLanding />
       <main className="">
+        <PrincipalLanding />
         <Info />
         <section className="w-full min-h-screen">
           <AboutUs />

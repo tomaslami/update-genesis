@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Nunito } from 'next/font/google'
 
 export const metadata: Metadata = {
   title: "Génesis",
   description: "Consultorio de Kinestesiología y Fisioterapia",
 };
+
+const nunito = Nunito({ subsets: ['latin'] })
 
 export default function RootLayout({
   children,
@@ -13,15 +16,8 @@ export default function RootLayout({
 }>) {
   return (
     <>
-
       <html lang="es">
-        <head>
-          <link rel="preconnect" href="https://fonts.googleapis.com"></link>
-          <link rel="preconnect" href="https://fonts.gstatic.com"></link>
-          <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200&display=swap" rel="stylesheet"></link>
-          <link rel="icon" href="/icons/pr_icon.ico" />
-        </head>
-        <body className='nunito' >{children}</body>
+        <body className={nunito.className} >{children}</body>
       </html>
     </>
   );

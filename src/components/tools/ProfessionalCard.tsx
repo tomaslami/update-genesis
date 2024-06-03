@@ -1,5 +1,6 @@
 import React from 'react'
 import '../tools/styles/special-styles.css'
+import Image from 'next/image'
 
 type ProfessionalCardProps = {
   image: string
@@ -14,10 +15,10 @@ type ProfessionalCardProps = {
 const ProfessionalCard = ({ image, name, title, item1, item2, item3, item4 }: ProfessionalCardProps) => {
   return (
     <div className='md:w-1/2 w-full flex justify-center items-center card-container'>
-      <div className='professional-card flex lg:flex-row flex-col justify-start items-center  lg:pl-[50px] '>
+      <div className='professional-card flex lg:flex-row flex-col justify-start items-center lg:pl-[50px] '>
         <div className='w-2/6 md:w-2/6 h-2/6 lg:full flex justify-center items-center flex-col'>
           <div className='w-full h-[178px] flex justify-center items-center'>
-            <img src={image} alt="Profesional Génesis" className='w-[120px]' />
+            <Image src={image} alt="Profesional Génesis" width={120} height={120} className='rounded-xl' />
           </div>
         </div>
         <div className='w-5/6 h-4/6 md:h-full flex md:justify-center md:items-start justify-center items-center flex-col md:gap-3'>

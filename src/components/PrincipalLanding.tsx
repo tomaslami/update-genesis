@@ -2,10 +2,10 @@ import React from 'react'
 
 const PrincipalLanding = () => {
   return (
-    <section className='h-[100dvh] w-full flex justify-center items-end bg-cover bg-no-repeat bg-center bg-[url(/FondoMobile.webp)] md:bg-[url(/PORTADA.webp)]' >
+    <section className='h-[100dvh] w-full flex justify-center items-end bg-cover bg-no-repeat bg-center bg-[url(/Portada.png)]' >
       <div className='w-full h-full flex justify-end items-center flex-col pb-5'>
         <a href="#servicios" className='flex justify-center items-center flex-col'>
-          <h3 className='text-white font-medium text-base'>VER MÁS</h3>
+          <h3 className='text-white font-bold text-base'>VER MÁS</h3>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="white" className="w-6 h-6 ">
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
           </svg>
