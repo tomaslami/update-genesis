@@ -15,7 +15,6 @@ const Header = () => {
   const arrItems = [
     { title: 'Inicio', href: '#inicio' },
     { title: 'Servicios', href: '#servicios' },
-    { title: 'Proyectos', href: '#proyectos' },
     { title: 'Contacto', href: '#contacto' },
   ]
   return (
