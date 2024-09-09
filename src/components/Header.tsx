@@ -27,8 +27,8 @@ const Header = () => {
           <Image src={'/GNS-2.webp'} alt='Logo Lo de Lucas' width={210} height={210} quality={75} loading="lazy"></Image>
         </Link>
       </picture>
-      <nav className='w-[65%] lg:w-full xl:w-[75%] h-full flex justify-end items-center xl:ml-28'>
-        <ul className='lg:flex hidden w-[75%] lg:w-full xl:w-[75%] justify-between items-center'>
+      <nav className='w-[65%] lg:w-full xl:w-[75%] h-full flex justify-end items-center xl:ml-[50%]'>
+        <ul className='lg:flex hidden w-[50%] lg:w-full xl:w-[75%] justify-between items-center'>
           {arrItems.map((item, index) => (
             <NavItems key={index} title={item.title} href={item.href} className={cn(header ? "text-white" : "text-black")} />
           ))}

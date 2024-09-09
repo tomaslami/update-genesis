@@ -4,7 +4,7 @@ import FooterIcons from './tools/FooterIcons'
 const Footer = () => {
 
   return (
-    <footer id='contacto' className='w-full  lg:h-[400px] bg-[#002337] p-3 flex lg:flex-row flex-col justify-center items-center gap-8'>
+    <footer id='contacto' className='w-full scroll-m-10 lg:h-[400px] bg-[#002337] p-3 flex lg:flex-row flex-col justify-center items-center gap-8'>
       <div className='w-[90%] md:w-1/2 h-1/2 md:h-full flex flex-col justify-center items-center gap-5 order-2 lg:order-1'>
         <FooterIcons />
       </div>
