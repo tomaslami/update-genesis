@@ -1,14 +1,25 @@
+import { ArrowDownIcon } from '@heroicons/react/24/outline'
 import React from 'react'
+import { TypeAnimation } from 'react-type-animation'
+import Title from './tools/Title'
+
 
 const PrincipalLanding = () => {
+
+
   return (
-    <section className='h-[100dvh] w-full flex justify-center items-end bg-cover bg-no-repeat bg-center bg-[url(/Portada.png)]' >
-      <div className='w-full h-full flex justify-end items-center flex-col pb-5'>
-        <a href="#servicios" className='flex justify-center items-center flex-col'>
-          <h3 className='text-white font-bold text-base'>VER MÁS</h3>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="white" className="w-6 h-6 ">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
-          </svg>
+    <section className='h-[100dvh] w-full relative overflow-hidden'>
+      <div className="absolute inset-0 bg-[url(/Portada.png)] bg-cover bg-no-repeat bg-center opacity-90"></div>
+      <div className="relative z-10 flex flex-col items-center justify-center h-full">
+        <div className="flex justify-center items-center flex-col text-center px-[5%] mb-8">
+          <h1 className="w-[80%] text-3xl md:text-5xl font-bold mb-6 text-white">
+            Especialistas en Servicios de Rehabilitación Física Integral
+          </h1>
+          <Title />
+        </div>
+        <a href="#servicios" className="inline-flex items-center bg-white text-[#002337] font-bold py-3 px-6 rounded-full hover:bg-blue-100 transition duration-300 absolute sm:mt-[40%] mt-[100%]">
+          Explorar más
+          <ArrowDownIcon className="w-5 h-5 ml-2" />
         </a>
       </div>
     </section>

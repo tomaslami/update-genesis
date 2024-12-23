@@ -8,7 +8,7 @@ const Professionals = () => {
   return (
     <section id='profesionales' className='scroll-m-10 min-h-screen w-full flex justify-start items-start md:p-10 p-4 flex-col gap-5 bg-cover bg-no-repeat bg-center bg-[url(/FondoProfesionales_Mobile.png)] lg:bg-[url(/FondoProfesionales.svg)]'>
       <div className='flex flex-col justify-center items-center w-full h-1/5  '>
-        <h1 className='w-full text-center text-2xl text-[#002337] font-extrabold '>NUESTROS PROFESIONALES</h1>
+        <h1 className='w-full text-center text-2xl text-[#002337] font-bold '>NUESTROS PROFESIONALES</h1>
       </div>
       <div className='w-full h-full flex flex-col lg:gap-24 gap-5 items-end' >
         {CardProfessionalsElements.map(pro => (

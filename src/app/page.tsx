@@ -1,5 +1,6 @@
 import AboutUs from "@/components/AboutUs";
 import Carousel from "@/components/Carousel";
+import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Info from "@/components/Info";
@@ -18,6 +19,7 @@ export default function Home() {
           <Carousel />
         </section>
         <Professionals />
+        <Contact />
         <Footer />
       </main>
     </>

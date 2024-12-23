@@ -6,7 +6,7 @@ const AboutUs = () => {
   return (
     <main id='nosotros' className='scroll-m-10 w-full md:h-[500px] h-[650px] flex flex-col justify-center items-center gap-5 lg:gap-8 '>
       <div className='flex justify-center items-center w-full h-1/12 '>
-        <h1 className='text-center text-3xl text-[#002337] font-extrabold '>¿QUIÉNES SOMOS?</h1>
+        <h1 className='text-center text-3xl text-[#002337] font-bold '>¿QUIÉNES SOMOS?</h1>
       </div>
       <div className='w-full px-10 h-10/12 flex md:flex-row flex-col justify-center items-center gap-7'>
         <div className='lg:w-1/2 w-full flex justify-end items-center'>

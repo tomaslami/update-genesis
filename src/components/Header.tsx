@@ -16,6 +16,7 @@ const Header = () => {
     { title: 'Inicio', href: '#inicio' },
     { title: 'Servicios', href: '#servicios' },
     { title: 'Contacto', href: '#contacto' },
+    { title: 'Profesionales', href: '#profesionales' },
   ]
   return (
     <header className={cn(header ? "w-full h-[70px] fixed z-30 flex justify-start items-center top-0 lg:px-10 transition-all border-b-[1px] border-white/0" : "  bg-white w-full h-[70px] fixed z-30 flex justify-start items-center border-b-[1px] shadow-xl border-b-white/20 top-0 lg:px-10 transition-all",)}

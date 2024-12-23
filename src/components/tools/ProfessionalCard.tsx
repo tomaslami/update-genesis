@@ -23,7 +23,7 @@ const ProfessionalCard = ({ image, name, title, item1, item2, item3, item4 }: Pr
         </div>
         <div className='w-5/6 h-4/6 md:h-full flex md:justify-center md:items-start justify-center items-center flex-col md:gap-3'>
           <div className='flex justify-center items-start flex-col w-full h-1/4 pt-5'>
-            <h1 className='w-full md:text-3xl text-xl font-bold md:pb-1 text-center md:text-start '>{name}</h1>
+            <h1 className='w-full md:text-3xl text-xl font-bold md:pb-1 text-center md:text-start text-[#002337]'>{name}</h1>
             <h2 className='text-xl font-normal'>{title}</h2>
           </div>
           <ul className='w-full h-3/4 px-3 flex justify-start items-start flex-col '>
