@@ -6,7 +6,7 @@ interface FloatingButtonProps {
   message?: string
 }
 
-const FloatingButton: React.FC<FloatingButtonProps> = ({ phoneNumber, message = '¡Hola! Me contacto desde el sitio web de Génesis Kinesiología. Estoy interesado/a en más información sobre sus servicios.' }) => {
+const FloatingButton: React.FC<FloatingButtonProps> = ({ phoneNumber, message = '¡Hola! Me contacto desde el sitio web de Génesis - RPG, Quiropraxia y Osteopatía. Estoy interesado/a en más información sobre sus servicios.' }) => {
   const encodedMessage = encodeURIComponent(message)
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
 

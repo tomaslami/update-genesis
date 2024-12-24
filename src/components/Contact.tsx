@@ -10,7 +10,7 @@ interface ButtonProps {
   message?: string
 }
 
-export default function Contact({ message = '¡Hola! Me contacto desde el sitio web de Génesis Kinesiología. Estoy interesado/a en más información sobre sus servicios.' }: ButtonProps) {
+export default function Contact({ message = '¡Hola! Me contacto desde el sitio web de Génesis - RPG, Quiropraxia y Osteopatía. Estoy interesado/a en más información sobre sus servicios.' }: ButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
   const encodedMessage = encodeURIComponent(message)
   const whatsappUrl = `https://wa.me/5491122519048?text=${encodedMessage}`

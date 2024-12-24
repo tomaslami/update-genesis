@@ -3,6 +3,8 @@ import "./globals.css";
 import { Nunito } from 'next/font/google'
 import FloatingButton from "@/components/tools/FloatingButton";
 import { TagManagerProvider } from "@/components/tools/TagManager";
+import { GoogleAnalytics } from "@next/third-parties/google"
+
 
 export const metadata: Metadata = {
   title: "Génesis",
@@ -20,6 +22,7 @@ export default function RootLayout({
     <>
       <html lang="es">
         <body className={nunito.className} >
+          <GoogleAnalytics gaId="G-BNR9CJ65S6" />
           <TagManagerProvider>
             {children}
             <FloatingButton phoneNumber="5491122519048" />
