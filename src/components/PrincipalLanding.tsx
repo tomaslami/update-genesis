@@ -11,8 +11,8 @@ const PrincipalLanding = () => {
     <section className='h-[100dvh] w-full relative overflow-hidden'>
       <div className="absolute inset-0 bg-[url(/Portada.png)] bg-cover bg-no-repeat bg-center opacity-90"></div>
       <div className="relative z-10 flex flex-col items-center justify-center h-full">
-        <div className="flex justify-center items-center flex-col text-center px-[5%] mb-8">
-          <h1 className="w-[80%] text-3xl md:text-5xl font-bold mb-6 text-white">
+        <div className="w-full h-max flex justify-center items-center flex-col text-center px-[5%] mb-8">
+          <h1 className="w-full md:w-[80%] text-[28px] md:text-5xl font-bold mb-6 text-white">
             Especialistas en Servicios de Rehabilitación Física Integral
           </h1>
           <Title />

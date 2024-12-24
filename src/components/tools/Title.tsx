@@ -7,7 +7,7 @@ const Title = () => {
     ' recuperar tu movilidad...',
     ' mejorar tu calidad de vida...',
     ' realizar una rehabilitación efectiva...',
-    ' recuperar tu equilibrio y fuerza..',
+    ' recuperar tu equilibrio y fuerza...',
   ]
   return (
     <p className="text-xl md:text-2xl mb-8 text-white">
