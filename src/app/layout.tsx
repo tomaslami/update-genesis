@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Nunito } from 'next/font/google'
+import FloatingButton from "@/components/tools/FloatingButton";
 
 export const metadata: Metadata = {
   title: "Génesis",
@@ -17,7 +18,10 @@ export default function RootLayout({
   return (
     <>
       <html lang="es">
-        <body className={nunito.className} >{children}</body>
+        <body className={nunito.className} >{children}
+          <FloatingButton phoneNumber="5491122519048" />
+        </body>
+
       </html>
     </>
   );
