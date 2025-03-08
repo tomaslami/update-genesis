@@ -9,7 +9,7 @@ import { GoogleAnalytics } from "@next/third-parties/google"
 export const metadata: Metadata = {
   title: "Génesis",
   description: "Consultorio de Kinestesiología y Fisioterapia",
-  keywords = [
+  keywords: [
     "Reeducación Postural Global",
     "Terapia postural",
     "Centro de rehabilitación",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     "Ejercicios para mejorar la postura",
     "Bienestar postural con RPG",
     "Sesiones de RPG en Buenos Aires"
-  ];
+  ]
 };
 
 const nunito = Nunito({ subsets: ['latin'] })
