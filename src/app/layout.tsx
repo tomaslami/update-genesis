@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     "Kinesiólogos expertos en postura",
     "Cuidado integral con RPG",
     "Consultorio profesional de RPG"
-  ];
+  ]
 };
 
 const nunito = Nunito({ subsets: ['latin'] })
