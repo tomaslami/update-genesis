@@ -9,7 +9,28 @@ import { GoogleAnalytics } from "@next/third-parties/google"
 export const metadata: Metadata = {
   title: "Génesis",
   description: "Consultorio de Kinestesiología y Fisioterapia",
-  keywords: ["Fisioterapia", "Rehabilitación", "Consultorio", "Génesis", "rehabilitación", "fisioterapia", "consultorio", "osteopatía para dolores musculares", "rehabilitación con RPG Buenos Aires", "solución para dolor cervical", "RPG Kinesiologia", "rpg kinesiologia", "postura corporal", "corregir postura espalda", "Rehabilitacion Postural Global", "dolores musculares", "recuperar movilidad"],
+  keywords = [
+    "Reeducación Postural Global",
+    "Terapia postural",
+    "Centro de rehabilitación",
+    "Osteopatía",
+    "Centro de Kinesiología",
+    "Kinesiología",
+    "Fisioterapia y Osteopatía",
+    "RPG Kinesiología",
+    "Centro de Osteopatía",
+    "Rehabilitación Postural Global",
+    "Osteópata",
+    "Osteópata Zona Norte",
+    "Terapia de RPG",
+    "Centro especializado en postura",
+    "Métodos de RPG",
+    "Postura corporal y equilibrio",
+    "Soluciones para una postura saludable",
+    "Ejercicios para mejorar la postura",
+    "Bienestar postural con RPG",
+    "Sesiones de RPG en Buenos Aires"
+  ];
 };
 
 const nunito = Nunito({ subsets: ['latin'] })
