@@ -16,6 +16,9 @@ const ORANGE = new THREE.Color('#f28c38')
 const BONE = new THREE.Color('#ece7de')
 const BONE_LIT = new THREE.Color('#ffdcbd')
 const BONE_DIM = new THREE.Color('#b4bcc4')
+/** Silueta tenue: el tono que toma el modelo mientras pasa por detrás de un texto. */
+const SILHOUETTE = new THREE.Color('#1f4560')
+const DISC = new THREE.Color('#9fc3db')
 
 type View = {
   /** Rotación del modelo sobre su eje vertical. */
@@ -77,6 +80,9 @@ function boneMaterial() {
     clearcoatRoughness: 0.6,
     emissive: ORANGE.clone(),
     emissiveIntensity: 0,
+    // Transparente solo para poder atenuarse a silueta; en reposo la opacidad es 1.
+    transparent: true,
+    opacity: 1,
   })
 }
 
@@ -150,6 +156,8 @@ function Anatomy({ reduced }: { reduced: boolean }) {
   const [notesReady, setNotesReady] = useState(false)
   const [noteFocus, setNoteFocus] = useState<Focus | null>(null)
   const noteRef = useRef<Focus | null>(null)
+  // Cuánto se apaga el modelo (0 encendido, 1 silueta) y si hay un texto por delante.
+  const fade = useRef({ k: 0, behind: false })
 
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
@@ -159,7 +167,6 @@ function Anatomy({ reduced }: { reduced: boolean }) {
     window.addEventListener('pointermove', onMove, { passive: true })
     return () => {
       window.removeEventListener('pointermove', onMove)
-      document.querySelectorAll<HTMLElement>('[data-shield]').forEach((el) => delete el.dataset.over)
     }
   }, [])
 
@@ -239,24 +246,34 @@ function Anatomy({ reduced }: { reduced: boolean }) {
     easing.damp(spin.current.rotation, 'x', py, 0.3, dt)
 
     // Iluminación de zonas: el naranja marca dónde actuamos.
+    // Opción A: si el modelo cruza por detrás de un texto, se apaga a una
+    // silueta azul tenue para que el texto quede nítido; al llegar, se enciende.
+    easing.damp(fade.current, 'k', fade.current.behind ? 1 : 0, reduced ? 0.0001 : 0.25, dt)
+    const off = fade.current.k
     const dim = mix(A.dimRest ? 1 : 0, B.dimRest ? 1 : 0)
     ;(['C', 'T', 'L', 'pelvis', 'femur'] as const).forEach((key) => {
       const lit = mix(A.lit[key] ?? 0, B.lit[key] ?? 0)
       const m = mats[key]
-      easing.damp(m, 'emissiveIntensity', lit * 0.85, 0.2, dt)
-      tmp.c.copy(BONE).lerp(BONE_DIM, dim).lerp(BONE_LIT, Math.min(1, lit * 1.4))
+      easing.damp(m, 'emissiveIntensity', lit * 0.85 * (1 - off), 0.2, dt)
+      tmp.c.copy(BONE).lerp(BONE_DIM, dim).lerp(BONE_LIT, Math.min(1, lit * 1.4)).lerp(SILHOUETTE, off * 0.85)
       easing.dampC(m.color, tmp.c, 0.2, dt)
+      // Silueta: sin reflejos de estudio y semitransparente mientras cruza.
+      m.envMapIntensity = 1 - off * 0.9
+      m.sheen = 0.4 * (1 - off)
+      m.opacity = 1 - off * 0.62
     })
     const ribsIn = reduced ? 1 : THREE.MathUtils.clamp((since - 1.2) / 1.2, 0, 1)
-    easing.damp(mats.ribs, 'opacity', mix(A.ribs, B.ribs) * ribsIn, 0.2, dt)
+    easing.damp(mats.ribs, 'opacity', mix(A.ribs, B.ribs) * ribsIn * (1 - off * 0.7), 0.2, dt)
+    tmp.c.copy(DISC).lerp(SILHOUETTE, off * 0.85)
+    easing.dampC(mats.disc.color, tmp.c, 0.2, dt)
     mats.ribs.visible = mats.ribs.opacity > 0.01
     mats.cartilage.opacity = mats.ribs.opacity * 0.8
     mats.cartilage.visible = mats.ribs.visible
     const chain = mix(A.chain ?? 0, B.chain ?? 0)
     const joints = mix(A.joints ?? 0, B.joints ?? 0)
-    easing.damp(mats.chain, 'opacity', chain * 0.9, 0.2, dt)
-    easing.damp(mats.flow, 'opacity', chain, 0.2, dt)
-    easing.damp(mats.joint, 'opacity', joints, 0.2, dt)
+    easing.damp(mats.chain, 'opacity', chain * 0.9 * (1 - off * 0.8), 0.2, dt)
+    easing.damp(mats.flow, 'opacity', chain * (1 - off * 0.8), 0.2, dt)
+    easing.damp(mats.joint, 'opacity', joints * (1 - off * 0.8), 0.2, dt)
     easing.damp(mats.plumb, 'opacity', mix(A.plumb ?? 0, B.plumb ?? 0) * 0.55, 0.2, dt)
 
     // Pulso en articulaciones y flujo sobre la cadena posterior.
@@ -277,7 +294,7 @@ function Anatomy({ reduced }: { reduced: boolean }) {
       setNoteFocus(nf)
     }
 
-    // Títulos y textos: si el modelo pasa por detrás, su fondo se desenfoca.
+    // ¿Hay un bloque de texto delante del modelo? (marcados con data-shield)
     let x0 = Infinity
     let x1 = -Infinity
     let y0 = Infinity
@@ -298,11 +315,12 @@ function Anatomy({ reduced }: { reduced: boolean }) {
       x0 += pad
       x1 -= pad
     }
+    let behind = false
     for (const el of document.querySelectorAll<HTMLElement>('[data-shield]')) {
       const r = el.getBoundingClientRect()
-      const over = !mobile && r.right > x0 && r.left < x1 && r.bottom > y0 && r.top < y1
-      if ((el.dataset.over === 'true') !== over) el.dataset.over = String(over)
+      if (!mobile && r.right > x0 && r.left < x1 && r.bottom > y0 && r.top < y1) behind = true
     }
+    fade.current.behind = behind
   })
 
   return (
