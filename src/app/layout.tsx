@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Nunito } from 'next/font/google'
-import FloatingButton from "@/components/tools/FloatingButton";
 import { TagManagerProvider } from "@/components/tools/TagManager";
 import { GoogleAnalytics } from "@next/third-parties/google"
 
 
 export const metadata: Metadata = {
   title: "Génesis",
-  description: "Consultorio de Kinestesiología y Fisioterapia",
+  description: "Génesis: kinesiología, RPG y Osteopatía en Recoleta, CABA. Prevención, evaluación y tratamiento de alteraciones del movimiento y la función física.",
   keywords: [
     "RPG Kinesiología",
     "Centro de Osteopatía",
@@ -43,7 +42,7 @@ export const metadata: Metadata = {
   ]
 };
 
-const nunito = Nunito({ subsets: ['latin'] })
+const nunito = Nunito({ subsets: ['latin'], weight: ['300', '400', '500', '600', '700', '800'], variable: '--font-nunito' })
 
 export default function RootLayout({
   children,
@@ -53,11 +52,10 @@ export default function RootLayout({
   return (
     <>
       <html lang="es">
-        <body className={nunito.className} >
+        <body className={`${nunito.variable} ${nunito.className}`}>
           <GoogleAnalytics gaId="G-BNR9CJ65S6" />
           <TagManagerProvider>
             {children}
-            <FloatingButton phoneNumber="5491122519048" />
           </TagManagerProvider>
         </body>
       </html>

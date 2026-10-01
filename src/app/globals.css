@@ -2,22 +2,224 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+html {
   scroll-behavior: smooth;
+  scroll-padding-top: 88px;
 }
 
+body {
+  background: #ffffff;
+  color: #000000;
+}
 
 ::-webkit-scrollbar {
   width: 12px;
 }
-
 ::-webkit-scrollbar-thumb {
   background-color: #002337;
 }
-
 ::-webkit-scrollbar-track {
   background-color: #f3f3f3;
+}
+
+:focus-visible {
+  outline: 2px solid #002337;
+  outline-offset: 3px;
+}
+.bg-navy :focus-visible {
+  outline-color: #ffffff;
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-[1320px] px-[5%];
+  }
+  /* Etiqueta anatómica: números de lámina, anotaciones y nav. */
+  .lbl {
+    @apply text-[12px] font-bold uppercase leading-4 tracking-[0.16em];
+  }
+  .h2 {
+    @apply text-[30px] font-extrabold leading-9 tracking-[-0.01em] sm:text-[44px] sm:leading-[50px];
+  }
+  .field {
+    @apply w-full rounded-md border border-field bg-surface-muted px-3.5 py-3 text-base font-normal text-ink;
+  }
+  /* Grilla de lámina: líneas guía muy tenues. */
+  .lamina-grid {
+    background-image: linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+}
+
+/* Secciones de la zona 3D: en desktop el texto va a un lado del modelo;
+   en celular el modelo ocupa la parte de arriba y el texto sube sobre un velo. */
+.zone-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: 46svh;
+}
+.zone-panel {
+  min-width: 0;
+}
+@media (min-width: 1024px) {
+  .zone-section {
+    justify-content: center;
+    padding-top: 0;
+  }
+}
+@media (max-width: 1023px) {
+  .zone-panel {
+    margin-inline: -5.5%;
+    padding-inline: 5.5%;
+    padding-top: 96px;
+    background: linear-gradient(to bottom, rgba(0, 35, 55, 0), rgba(0, 35, 55, 0.92) 96px, rgba(0, 35, 55, 0.96));
+  }
+}
+
+.hero-photo {
+  filter: blur(10px) saturate(0.9);
+  transform: scale(1.08);
+  animation: breathe 22s ease-in-out infinite alternate;
+}
+@keyframes breathe {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1.14);
+  }
+}
+
+/* Anotación anatómica: punto naranja, línea guía y etiqueta. */
+.anat-note {
+  position: relative;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  color: #ffffff;
+  white-space: nowrap;
+}
+.anat-note[data-on='true'] {
+  opacity: 1;
+  transform: none;
+}
+.anat-note--left {
+  flex-direction: row-reverse;
+  transform-origin: right center;
+  translate: calc(-100% + 6px) -50%;
+}
+.anat-note--right {
+  translate: -6px -50%;
+}
+.anat-note__dot {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: #f28c38;
+  box-shadow: 0 0 0 0 rgba(242, 140, 56, 0.6);
+  animation: ring 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.anat-note__line {
+  width: 56px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.75);
+}
+.anat-note__label {
+  display: flex;
+  flex-direction: column;
+  margin: 0 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(0, 35, 55, 0.78);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.anat-note--left .anat-note__label {
+  text-align: right;
+}
+@media (max-width: 1023px) {
+  .anat-note__line {
+    width: 28px;
+  }
+  .anat-note__label {
+    font-size: 10px;
+    line-height: 13px;
+  }
+}
+@keyframes ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(242, 140, 56, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgba(242, 140, 56, 0);
+  }
+}
+.pulse-dot {
+  animation: ring 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.pulse-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulse 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Columna de carga mientras llega el modelo 3D. */
+.spine-placeholder span {
+  animation: stack 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes stack {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Índice vertebral: al pasar el mouse se despliega el índice completo. */
+.spine-nav:hover .spine-nav__label,
+.spine-nav:focus-within .spine-nav__label {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i) * 25ms);
+}
+
+.gallery {
+  scrollbar-width: none;
+}
+.gallery::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .hero-photo,
+  .anat-note__dot,
+  .pulse-dot,
+  .pulse-ring,
+  .spine-placeholder span {
+    animation: none;
+  }
 }
