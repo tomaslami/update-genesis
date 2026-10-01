@@ -9,9 +9,7 @@ export default function Footer() {
       <IsotypeOutline stroke="#ffffff" className="pointer-events-none absolute -bottom-56 -right-32 h-[620px] w-[620px] opacity-[0.22]" />
       <div className="wrap relative flex flex-col gap-12 pb-28 pt-20 md:pb-10">
         <div className="flex flex-wrap justify-between gap-10">
-          <div className="inline-flex h-[72px] items-center self-start rounded-full bg-white px-7">
-            <Image src="/GNS-2.webp" alt="Génesis" width={173} height={40} className="h-10 w-auto" />
-          </div>
+          <Image src="/genesis-logo-blanco.webp" alt="Génesis" width={1612} height={346} className="h-11 w-auto self-start" />
           <nav aria-label="Pie de página" className="flex flex-col gap-3.5">
             {SECTIONS.filter((s) => s.id !== 'inicio').map((s) => (
               <a key={s.id} href={`#${s.id}`} className="lbl transition-colors duration-300 hover:text-orange">

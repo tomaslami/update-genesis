@@ -50,9 +50,9 @@ export default function Contacto() {
         </div>
         <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
           <div className="flex flex-col gap-8">
-            <Reveal className="flex flex-col gap-4 rounded-card bg-navy p-8 text-white sm:p-10">
-              <span className="lbl text-white/80">WhatsApp</span>
-              <p className="text-[30px] font-extrabold leading-10 sm:text-[34px]">{CONTACT.phone}</p>
+            <Reveal className="flex flex-col gap-4">
+              <span className="lbl text-navy">WhatsApp</span>
+              <p className="text-[30px] font-extrabold leading-10 text-navy sm:text-[34px]">{CONTACT.phone}</p>
               <a
                 href={WHATSAPP_URL}
                 target="_blank"

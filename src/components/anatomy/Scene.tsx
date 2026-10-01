@@ -1,7 +1,9 @@
 'use client'
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Html } from '@react-three/drei'
+import { Environment, Html, Lightformer } from '@react-three/drei'
+import { EffectComposer, N8AO, ToneMapping } from '@react-three/postprocessing'
+import { ToneMappingMode } from 'postprocessing'
 import { easing } from 'maath'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
@@ -10,9 +12,10 @@ import { focusFor, store, type Focus } from '@/lib/store'
 import type { SectionId } from '@/lib/site'
 
 const ORANGE = new THREE.Color('#f28c38')
-const BONE = new THREE.Color('#e4ebf1')
-const BONE_LIT = new THREE.Color('#ffe3cc')
-const BONE_DIM = new THREE.Color('#b9c7d3')
+// Hueso marfil, levemente frío: realista pero limpio.
+const BONE = new THREE.Color('#ece7de')
+const BONE_LIT = new THREE.Color('#ffdcbd')
+const BONE_DIM = new THREE.Color('#b4bcc4')
 
 type View = {
   /** Rotación del modelo sobre su eje vertical. */
@@ -63,10 +66,15 @@ const NOTES: Note[] = [
 ]
 
 function boneMaterial() {
-  return new THREE.MeshStandardMaterial({
+  return new THREE.MeshPhysicalMaterial({
     color: BONE.clone(),
-    roughness: 0.62,
-    metalness: 0.05,
+    roughness: 0.48,
+    metalness: 0,
+    sheen: 0.4,
+    sheenRoughness: 0.55,
+    sheenColor: new THREE.Color('#cfe1f0'),
+    clearcoat: 0.08,
+    clearcoatRoughness: 0.6,
     emissive: ORANGE.clone(),
     emissiveIntensity: 0,
   })
@@ -83,10 +91,27 @@ function Anatomy({ reduced }: { reduced: boolean }) {
       L: boneMaterial(),
       pelvis: boneMaterial(),
       femur: boneMaterial(),
-      disc: new THREE.MeshStandardMaterial({ color: '#8fb4cf', roughness: 0.4, transparent: true, opacity: 0.75 }),
-      ribs: new THREE.MeshStandardMaterial({
-        color: '#dfe9f2',
-        roughness: 0.5,
+      disc: new THREE.MeshPhysicalMaterial({
+        color: '#9fc3db',
+        roughness: 0.28,
+        clearcoat: 0.5,
+        clearcoatRoughness: 0.3,
+        transparent: true,
+        opacity: 0.9,
+      }),
+      ribs: new THREE.MeshPhysicalMaterial({
+        color: '#ece7de',
+        roughness: 0.45,
+        sheen: 0.3,
+        sheenColor: new THREE.Color('#cfe1f0'),
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+      }),
+      cartilage: new THREE.MeshPhysicalMaterial({
+        color: '#b9d5e8',
+        roughness: 0.3,
+        clearcoat: 0.4,
         transparent: true,
         opacity: 0,
         depthWrite: false,
@@ -195,11 +220,11 @@ function Anatomy({ reduced }: { reduced: boolean }) {
 
     // Cámara y lado de la pantalla.
     const fov = (camera as THREE.PerspectiveCamera).fov
-    const dist = mix(A.dist, B.dist) * (mobile ? 1.3 : 1)
+    const dist = mix(A.dist, B.dist) * (mobile ? 1.42 : 1)
     const visibleH = 2 * dist * Math.tan(THREE.MathUtils.degToRad(fov / 2))
     const visibleW = visibleH * (size.width / size.height)
     const offsetX = mobile ? 0 : mix(SIDES[i0], SIDES[i0 + 1]) * visibleW * 0.23
-    const camY = mix(A.y, B.y) - (mobile ? visibleH * 0.2 : 0)
+    const camY = mix(A.y, B.y) - (mobile ? visibleH * 0.15 : 0)
     const k = reduced ? 0.0001 : 0.16
     easing.damp(root.current.position, 'x', offsetX, k, dt)
     easing.damp3(camera.position, [0, camY, dist], k, dt)
@@ -225,6 +250,8 @@ function Anatomy({ reduced }: { reduced: boolean }) {
     const ribsIn = reduced ? 1 : THREE.MathUtils.clamp((since - 1.2) / 1.2, 0, 1)
     easing.damp(mats.ribs, 'opacity', mix(A.ribs, B.ribs) * ribsIn, 0.2, dt)
     mats.ribs.visible = mats.ribs.opacity > 0.01
+    mats.cartilage.opacity = mats.ribs.opacity * 0.8
+    mats.cartilage.visible = mats.ribs.visible
     const chain = mix(A.chain ?? 0, B.chain ?? 0)
     const joints = mix(A.joints ?? 0, B.joints ?? 0)
     easing.damp(mats.chain, 'opacity', chain * 0.9, 0.2, dt)
@@ -294,6 +321,7 @@ function Anatomy({ reduced }: { reduced: boolean }) {
         ))}
         <mesh geometry={data.discs} material={mats.disc} />
         <mesh geometry={data.ribs} material={mats.ribs} renderOrder={2} />
+        <mesh geometry={data.cartilage} material={mats.cartilage} renderOrder={2} />
         <mesh
           geometry={data.sacrum.geometry}
           material={mats.pelvis}
@@ -380,20 +408,46 @@ function Notes({
 }
 
 export default function Scene({ running, reduced }: { running: boolean; reduced: boolean }) {
+  // Oclusión ambiental solo en pantallas grandes: en celulares prioriza fluidez.
+  const [ao, setAo] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)')
+    setAo(mq.matches)
+    const on = () => setAo(mq.matches)
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [])
+
   return (
     <Canvas
       dpr={[1, 1.5]}
       frameloop={running ? 'always' : 'never'}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      onCreated={({ gl }) => {
+        gl.toneMapping = THREE.AgXToneMapping
+        gl.toneMappingExposure = 1.25
+      }}
       camera={{ fov: 32, position: [0, -0.95, 17], near: 0.1, far: 80 }}
       style={{ width: '100%', height: '100%' }}
     >
-      <hemisphereLight args={['#d6e8f7', '#002337', 0.9]} />
-      <ambientLight intensity={0.25} color="#a9c4da" />
-      <directionalLight position={[4, 6, 9]} intensity={1.7} />
-      <directionalLight position={[-7, 3, -8]} intensity={2.4} color="#6fb3ff" />
-      <directionalLight position={[6, -4, -6]} intensity={0.9} color="#f2b27a" />
+      {/* Estudio: luces de caja suaves generadas en el momento (sin descargar mapas HDR). */}
+      <Environment resolution={256} environmentIntensity={0.75}>
+        <Lightformer form="rect" intensity={3} color="#ffffff" position={[0, 6, 6]} scale={[10, 4, 1]} />
+        <Lightformer form="rect" intensity={2} color="#8fc2ff" position={[-8, 1, -4]} rotation-y={Math.PI / 2} scale={[8, 10, 1]} />
+        <Lightformer form="rect" intensity={1.2} color="#ffd2ad" position={[8, -2, -2]} rotation-y={-Math.PI / 2} scale={[6, 8, 1]} />
+        <Lightformer form="circle" intensity={1.5} color="#ffffff" position={[0, -6, 4]} scale={4} />
+      </Environment>
+      <hemisphereLight args={['#d6e8f7', '#002337', 0.35]} />
+      <directionalLight position={[4, 6, 9]} intensity={1.6} />
+      <directionalLight position={[-7, 3, -8]} intensity={2.2} color="#6fb3ff" />
+      <directionalLight position={[6, -4, -6]} intensity={0.6} color="#f2b27a" />
       <Anatomy reduced={reduced} />
+      {ao && (
+        <EffectComposer multisampling={4}>
+          <N8AO aoRadius={0.3} distanceFalloff={0.6} intensity={1.5} halfRes quality="performance" />
+          <ToneMapping mode={ToneMappingMode.AGX} />
+        </EffectComposer>
+      )}
     </Canvas>
   )
 }

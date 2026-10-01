@@ -34,12 +34,12 @@ export default function Hero() {
         <motion.a
           href="#inicio"
           aria-label="Génesis"
-          className="inline-flex h-14 items-center rounded-full bg-white px-6 shadow-xl sm:h-16 sm:px-7"
+          className="inline-flex items-center"
           initial={reduce ? false : { opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: EASE }}
         >
-          <Image src="/GNS-2.webp" alt="Génesis" width={173} height={40} priority className="h-8 w-auto sm:h-10" />
+          <Image src="/genesis-logo-blanco.webp" alt="Génesis" width={1612} height={346} priority className="h-9 w-auto sm:h-11" />
         </motion.a>
       </div>
       <div className="wrap grid w-full lg:grid-cols-2">
