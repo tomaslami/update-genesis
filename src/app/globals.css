@@ -4,7 +4,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 88px;
+  scroll-padding-top: 24px;
 }
 
 body {
@@ -67,6 +67,12 @@ body {
   .zone-section {
     justify-content: center;
     padding-top: 0;
+  }
+}
+/* En celular el hero sube un poco para que el botón de WhatsApp quede a la vista sobre la barra. */
+@media (max-width: 1023px) {
+  #inicio.zone-section {
+    padding-top: 30svh;
   }
 }
 @media (max-width: 1023px) {

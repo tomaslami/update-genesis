@@ -1,20 +1,23 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { SECTIONS, sectionNumber } from '@/lib/site'
-import { useStore } from '@/lib/store'
+import { store, useStore } from '@/lib/store'
 import { VertebraShape } from '@/components/ui/icons'
 
 /**
- * Índice lateral con forma de columna: cada sección es una vértebra.
- * La médula se llena de naranja con el scroll, las vértebras recorridas
- * quedan alineadas (rellenas) y la activa se enciende en naranja. Al entrar
- * en una sección su nombre aparece un momento; al pasar el mouse se
- * despliega el índice completo.
+ * La columna es toda la navegación: arriba el isotipo (vuelve al inicio),
+ * en el medio una vértebra por sección y abajo el menú. La médula se llena
+ * de naranja con el scroll, las vértebras recorridas quedan alineadas
+ * (rellenas) y la activa se enciende. Al entrar en una sección su nombre
+ * aparece un momento; en desktop, al pasar el mouse, se despliega el índice.
+ * En celular la misma columna se acuesta como una barra fina abajo.
  */
 export default function SpineNav() {
   const active = useStore((s) => s.active)
   const progress = useStore((s) => s.progress)
+  const menuOpen = useStore((s) => s.menuOpen)
   const activeIdx = SECTIONS.findIndex((s) => s.id === active)
   const [flash, setFlash] = useState(true)
 
@@ -24,48 +27,139 @@ export default function SpineNav() {
     return () => window.clearTimeout(id)
   }, [active])
 
+  const vertClass = (i: number) =>
+    i === activeIdx
+      ? 'scale-125 fill-orange stroke-orange'
+      : i < activeIdx
+        ? 'fill-navy stroke-navy'
+        : 'fill-white stroke-navy/60 group-hover:stroke-navy'
+
+  const openMenu = () => store.set({ menuOpen: true })
+
   return (
-    <nav aria-label="Secciones" className="spine-nav group fixed right-4 top-1/2 z-40 hidden -translate-y-1/2 lg:block">
-      <div className="relative flex flex-col items-center rounded-full bg-white/95 px-1.5 py-3 shadow-lg ring-1 ring-navy/5">
-        <span aria-hidden="true" className="absolute bottom-6 top-6 left-1/2 w-px -translate-x-1/2 bg-navy/15">
-          <span
-            className="absolute inset-x-0 top-0 bg-orange transition-[height] duration-300"
-            style={{ height: `${progress * 100}%` }}
-          />
-        </span>
-        {SECTIONS.map((s, i) => {
-          const isActive = i === activeIdx
-          const passed = i < activeIdx
-          return (
-            <a
-              key={s.id}
-              href={`#${s.id}`}
-              aria-current={isActive ? 'location' : undefined}
-              className="spine-nav__item relative flex h-8 w-12 items-center justify-center rounded-full"
-              style={{ ['--i' as string]: i }}
-            >
-              <VertebraShape
-                width={20 + i * 2.2}
-                className={`relative z-10 transition-all duration-300 ${
-                  isActive
-                    ? 'scale-125 fill-orange stroke-orange'
-                    : passed
-                      ? 'fill-navy stroke-navy'
-                      : 'fill-white stroke-navy/60 group-hover:stroke-navy'
-                }`}
-              />
+    <>
+      {/* Desktop: columna vertical a la derecha. */}
+      <nav
+        aria-label="Navegación"
+        className="spine-nav group fixed right-4 top-1/2 z-40 hidden -translate-y-1/2 lg:block"
+      >
+        <div className="relative flex flex-col items-center rounded-full bg-white/95 px-1.5 py-2 shadow-lg ring-1 ring-navy/5">
+          <a
+            href="#inicio"
+            aria-label="Génesis, volver al inicio"
+            className="flex h-12 w-12 items-center justify-center rounded-full transition-colors duration-300 hover:bg-surface-muted"
+          >
+            <Image src="/isotipo.webp" alt="" width={74} height={56} className="h-auto w-8" />
+          </a>
+          <span aria-hidden="true" className="my-1.5 h-px w-6 bg-navy/15" />
+          <div className="relative flex flex-col items-center">
+            <span aria-hidden="true" className="absolute bottom-3 top-3 left-1/2 w-px -translate-x-1/2 bg-navy/15">
               <span
-                className={`spine-nav__label lbl pointer-events-none absolute right-full mr-3 flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 shadow-md transition-all duration-300 ${
-                  isActive ? `bg-orange text-navy ${flash ? 'opacity-100' : 'opacity-0 translate-x-2'}` : 'bg-white text-navy opacity-0 translate-x-2'
-                }`}
+                className="absolute inset-x-0 top-0 bg-orange transition-[height] duration-300"
+                style={{ height: `${progress * 100}%` }}
+              />
+            </span>
+            {SECTIONS.map((s, i) => {
+              const isActive = i === activeIdx
+              return (
+                <a
+                  key={s.id}
+                  href={`#${s.id}`}
+                  aria-current={isActive ? 'location' : undefined}
+                  aria-label={`${sectionNumber(s.id)} — ${s.label}`}
+                  className="spine-nav__item relative flex h-8 w-12 items-center justify-center rounded-full"
+                  style={{ ['--i' as string]: i }}
+                >
+                  <VertebraShape
+                    width={20 + i * 2.2}
+                    className={`relative z-10 transition-all duration-300 ${vertClass(i)}`}
+                  />
+                  <span
+                    aria-hidden="true"
+                    className={`spine-nav__label lbl pointer-events-none absolute right-full mr-3 flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 shadow-md transition-all duration-300 ${
+                      isActive
+                        ? `bg-orange text-navy ${flash ? 'opacity-100' : 'translate-x-2 opacity-0'}`
+                        : 'translate-x-2 bg-white text-navy opacity-0'
+                    }`}
+                  >
+                    <span className="text-navy/60">{sectionNumber(s.id)}</span>
+                    {s.label}
+                  </span>
+                </a>
+              )
+            })}
+          </div>
+          <span aria-hidden="true" className="my-1.5 h-px w-6 bg-navy/15" />
+          <button
+            type="button"
+            onClick={openMenu}
+            aria-expanded={menuOpen}
+            aria-controls="menu"
+            aria-label="Abrir menú"
+            className="flex h-12 w-12 items-center justify-center rounded-full text-navy transition-colors duration-300 hover:bg-surface-muted"
+          >
+            <MenuIcon />
+          </button>
+        </div>
+      </nav>
+
+      {/* Celular: la columna acostada, como barra fina abajo. */}
+      <nav aria-label="Navegación" className="fixed inset-x-0 bottom-3 z-40 flex justify-center px-3 lg:hidden">
+        <div className="relative flex items-center rounded-full bg-white/95 py-1 pl-1 pr-1 shadow-lg ring-1 ring-navy/5">
+          <span
+            aria-hidden="true"
+            className={`lbl pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-orange px-3 py-1.5 text-navy shadow-md transition-all duration-300 ${
+              flash ? 'opacity-100' : 'translate-y-1 opacity-0'
+            }`}
+          >
+            <span className="text-navy/60">{sectionNumber(active)}</span> {SECTIONS[activeIdx]?.label}
+          </span>
+          <a
+            href="#inicio"
+            aria-label="Génesis, volver al inicio"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+          >
+            <Image src="/isotipo.webp" alt="" width={74} height={56} className="h-auto w-7" />
+          </a>
+          <div className="relative flex items-center">
+            <span aria-hidden="true" className="absolute inset-x-2 top-1/2 h-px -translate-y-1/2 bg-navy/15">
+              <span className="absolute inset-y-0 left-0 bg-orange" style={{ width: `${progress * 100}%` }} />
+            </span>
+            {SECTIONS.map((s, i) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                aria-current={i === activeIdx ? 'location' : undefined}
+                aria-label={`${sectionNumber(s.id)} — ${s.label}`}
+                className="flex h-11 w-[26px] items-center justify-center"
               >
-                <span className={isActive ? 'text-navy/70' : 'text-navy/60'}>{sectionNumber(s.id)}</span>
-                {s.label}
-              </span>
-            </a>
-          )
-        })}
-      </div>
-    </nav>
+                <VertebraShape
+                  width={16 + i * 1.6}
+                  className={`relative z-10 rotate-90 transition-all duration-300 ${vertClass(i)}`}
+                />
+              </a>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={openMenu}
+            aria-expanded={menuOpen}
+            aria-controls="menu"
+            aria-label="Abrir menú"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-navy"
+          >
+            <MenuIcon />
+          </button>
+        </div>
+      </nav>
+    </>
+  )
+}
+
+function MenuIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+      <path d="M5 9h14M5 15h9" />
+    </svg>
   )
 }

@@ -18,6 +18,24 @@ const RPG_INDICATIONS = [
 
 const SERVICES: { id: Service; title: string; sub: string; body: ReactNode }[] = [
   {
+    id: 'osteo',
+    title: 'Osteopatía',
+    sub: 'Articulaciones y estructura',
+    body: (
+      <>
+        <p>
+          Es un abordaje terapéutico manual que busca mejorar la movilidad, disminuir tensiones y favorecer un
+          funcionamiento más equilibrado del sistema musculoesquelético.
+        </p>
+        <p>
+          El tratamiento comienza con una evaluación individual para identificar restricciones de movilidad, tensiones
+          musculares y alteraciones funcionales. A partir de ella se seleccionan diferentes técnicas manuales,
+          adaptadas a las características y necesidades de cada persona.
+        </p>
+      </>
+    ),
+  },
+  {
     id: 'rpg',
     title: 'RPG',
     sub: 'Reeducación Postural Global',
@@ -39,24 +57,6 @@ const SERVICES: { id: Service; title: string; sub: string; body: ReactNode }[] =
             </li>
           ))}
         </ul>
-      </>
-    ),
-  },
-  {
-    id: 'osteo',
-    title: 'Osteopatía',
-    sub: 'Articulaciones y estructura',
-    body: (
-      <>
-        <p>
-          Es un abordaje terapéutico manual que busca mejorar la movilidad, disminuir tensiones y favorecer un
-          funcionamiento más equilibrado del sistema musculoesquelético.
-        </p>
-        <p>
-          El tratamiento comienza con una evaluación individual para identificar restricciones de movilidad, tensiones
-          musculares y alteraciones funcionales. A partir de ella se seleccionan diferentes técnicas manuales,
-          adaptadas a las características y necesidades de cada persona.
-        </p>
       </>
     ),
   },
@@ -121,8 +121,8 @@ export default function Servicios() {
             })}
           </div>
           <p className="lbl mt-2 flex justify-between text-white/70" aria-live="polite">
-            <span>Fig. 04 — {current === 'rpg' ? 'Cadena posterior' : 'Articulaciones'}</span>
-            <span>{current === 'rpg' ? '01' : '02'} / 02</span>
+            <span>Fig. 04 — {current === 'osteo' ? 'Articulaciones' : 'Cadena posterior'}</span>
+            <span>{current === 'osteo' ? '01' : '02'} / 02</span>
           </p>
         </div>
       </div>

@@ -36,7 +36,7 @@ let state: State = {
   active: 'inicio',
   progress: 0,
   condition: CONDITIONS[0].id,
-  service: 'rpg',
+  service: 'osteo',
   menuOpen: false,
 }
 

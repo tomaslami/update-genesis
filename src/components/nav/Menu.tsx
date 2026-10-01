@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import { CONTACT, SECTIONS, WHATSAPP_URL, sectionNumber } from '@/lib/site'
@@ -9,61 +8,13 @@ import { CloseIcon, VertebraShape, WhatsAppIcon } from '@/components/ui/icons'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
-export default function Header() {
+/** Menú a pantalla completa: índice numerado con su vértebra y datos de contacto. */
+export default function Menu() {
   const open = useStore((s) => s.menuOpen)
-  const active = useStore((s) => s.active)
-  const progress = useStore((s) => s.progress)
-  const activeLabel = SECTIONS.find((s) => s.id === active)?.label ?? ''
-
-  return (
-    <>
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
-        <div className="wrap flex items-center justify-between pt-4">
-          <a
-            href="#inicio"
-            aria-label="Génesis, ir al inicio"
-            className="pointer-events-auto inline-flex h-14 items-center rounded-full bg-white px-5 shadow-xl sm:h-[60px] sm:px-6"
-          >
-            <Image src="/GNS-2.webp" alt="Génesis" width={147} height={34} priority className="h-7 w-auto sm:h-[34px]" />
-          </a>
-          <div className="pointer-events-auto relative inline-flex h-14 items-center gap-1 overflow-hidden rounded-full bg-white px-1.5 shadow-xl sm:h-[60px] sm:gap-1.5 sm:px-2">
-            <button
-              type="button"
-              onClick={() => store.set({ menuOpen: true })}
-              aria-expanded={open}
-              aria-controls="menu"
-              aria-label="Abrir menú"
-              className="inline-flex h-11 items-center gap-2.5 rounded-full px-3 sm:px-4 text-navy transition-colors duration-300 hover:bg-surface-muted"
-            >
-              <span className="lbl text-orange sm:hidden" aria-hidden="true" title={activeLabel}>
-                {sectionNumber(active)}
-              </span>
-              <span className="lbl hidden sm:inline">Menú</span>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
-                <path d="M5 9h14M5 15h9" />
-              </svg>
-            </button>
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Contáctanos por WhatsApp"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-orange text-navy transition-colors duration-300 hover:bg-orange-soft"
-            >
-              <WhatsAppIcon />
-            </a>
-            <span aria-hidden="true" className="absolute inset-x-6 bottom-0 h-[2px] bg-navy/10 lg:hidden">
-              <span className="block h-full bg-orange" style={{ width: `${progress * 100}%` }} />
-            </span>
-          </div>
-        </div>
-      </header>
-      <AnimatePresence>{open && <Menu />}</AnimatePresence>
-    </>
-  )
+  return <AnimatePresence>{open && <MenuPanel />}</AnimatePresence>
 }
 
-function Menu() {
+function MenuPanel() {
   const active = useStore((s) => s.active)
   const reduce = useReducedMotion()
   const closeRef = useRef<HTMLButtonElement>(null)

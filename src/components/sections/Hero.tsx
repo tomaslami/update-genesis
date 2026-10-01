@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { WHATSAPP_URL } from '@/lib/site'
@@ -28,8 +29,21 @@ export default function Hero() {
 
   return (
     <section id="inicio" className="zone-section relative z-10 min-h-[100svh]">
+      {/* Encabezado de la lámina: el logo aparece una vez y se va con el scroll. */}
+      <div className="wrap absolute inset-x-0 top-0 pt-6">
+        <motion.a
+          href="#inicio"
+          aria-label="Génesis"
+          className="inline-flex h-14 items-center rounded-full bg-white px-6 shadow-xl sm:h-16 sm:px-7"
+          initial={reduce ? false : { opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: EASE }}
+        >
+          <Image src="/GNS-2.webp" alt="Génesis" width={173} height={40} priority className="h-8 w-auto sm:h-10" />
+        </motion.a>
+      </div>
       <div className="wrap grid w-full lg:grid-cols-2">
-        <div data-shield className="zone-panel flex flex-col gap-7 pb-16 lg:pb-0">
+        <div data-shield className="zone-panel flex flex-col gap-7 pb-28 lg:pb-0">
           <motion.div {...rise(0)}>
             <SectionLabel n="01" dark>
               Cuerpo

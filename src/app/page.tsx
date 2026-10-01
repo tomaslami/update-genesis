@@ -1,5 +1,5 @@
 import AnatomyStage from '@/components/anatomy/AnatomyStage'
-import Header from '@/components/nav/Header'
+import Menu from '@/components/nav/Menu'
 import ScrollTracker from '@/components/nav/ScrollTracker'
 import SpineNav from '@/components/nav/SpineNav'
 import WhatsAppFloat from '@/components/nav/WhatsAppFloat'
@@ -19,8 +19,8 @@ export default function Home() {
   return (
     <>
       <ScrollTracker />
-      <Header />
       <SpineNav />
+      <Menu />
       <main>
         {/* Zona anatómica: el modelo 3D queda fijo mientras pasan estas cuatro secciones. */}
         <div className="lamina-grid relative bg-navy text-white">
