@@ -6,7 +6,8 @@ import { easing } from 'maath'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { buildAnatomy, type Region } from './geometry'
-import { focusFor, sideFor, useStore, type Focus } from '@/lib/store'
+import { focusFor, store, type Focus } from '@/lib/store'
+import type { SectionId } from '@/lib/site'
 
 const ORANGE = new THREE.Color('#f28c38')
 const BONE = new THREE.Color('#e4ebf1')
@@ -39,6 +40,11 @@ const VIEWS: Record<Focus, View> = {
   osteo: { rotY: -0.45, y: -2.9, dist: 10.4, ribs: 0.04, lit: { pelvis: 1 }, joints: 1, dimRest: true },
 }
 
+/** Secciones de la zona anatómica y el lado de la pantalla donde va el modelo (1 derecha, -1 izquierda). */
+const ZONE: SectionId[] = ['inicio', 'kinesiologia', 'abordaje', 'servicios']
+const SIDES = [1, -1, 1, -1]
+const zoneFocus = (i: number): Focus => focusFor({ ...store.get(), active: ZONE[i] })
+
 type Note = { anchor: string; lines: string[]; dir: 'left' | 'right'; focus: Focus; delay?: number }
 
 const NOTES: Note[] = [
@@ -68,9 +74,7 @@ function boneMaterial() {
 
 function Anatomy({ reduced }: { reduced: boolean }) {
   const data = useMemo(() => buildAnatomy(), [])
-  const focus = useStore(focusFor)
-  const active = useStore((s) => s.active)
-  const { camera, size } = useThree()
+  const { camera, size, gl } = useThree()
 
   const mats = useMemo(
     () => ({
@@ -108,10 +112,19 @@ function Anatomy({ reduced }: { reduced: boolean }) {
   const haloRefs = useRef<(THREE.Mesh | null)[]>([])
   const flowRefs = useRef<(THREE.Mesh | null)[]>([])
   const pointer = useRef({ x: 0, y: 0 })
-  const target = useRef(new THREE.Vector3())
   const start = useRef<number | null>(null)
-  // Las anotaciones se montan un cuadro después del modelo (evita una carrera al montar el primer <Html>).
+  const tmp = useMemo(() => ({ v: new THREE.Vector3(), c: new THREE.Color() }), [])
+  const corners = useMemo(() => {
+    const { top, bottom } = data.bounds
+    const pts: THREE.Vector3[] = []
+    for (const x of [-1.5, 1.5]) for (const y of [bottom, top]) for (const z of [-1, 1]) pts.push(new THREE.Vector3(x, y, z))
+    return pts
+  }, [data])
+  // Anotaciones: se montan un cuadro después del modelo (evita una carrera al
+  // montar el primer <Html>) y solo se muestran con el modelo quieto.
   const [notesReady, setNotesReady] = useState(false)
+  const [noteFocus, setNoteFocus] = useState<Focus | null>(null)
+  const noteRef = useRef<Focus | null>(null)
 
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
@@ -119,7 +132,10 @@ function Anatomy({ reduced }: { reduced: boolean }) {
       pointer.current.y = (e.clientY / window.innerHeight) * 2 - 1
     }
     window.addEventListener('pointermove', onMove, { passive: true })
-    return () => window.removeEventListener('pointermove', onMove)
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      document.querySelectorAll<HTMLElement>('[data-shield]').forEach((el) => delete el.dataset.over)
+    }
   }, [])
 
   useEffect(
@@ -137,8 +153,6 @@ function Anatomy({ reduced }: { reduced: boolean }) {
     if (start.current === null) start.current = t
     if (!notesReady) setNotesReady(true)
     const since = t - start.current
-    const view = VIEWS[focus]
-    const smooth = reduced ? 0.0001 : 0.55
 
     // Entrada: las vértebras se apilan de arriba hacia abajo y se alinean.
     data.vertebrae.forEach((v, i) => {
@@ -150,53 +164,118 @@ function Anatomy({ reduced }: { reduced: boolean }) {
       m.scale.setScalar(0.4 + 0.6 * e)
     })
 
-    // Cámara: distancia y altura según la zona; el modelo se ubica a un lado del texto.
+    // Posición continua del scroll dentro de la zona: 0 = Hero … 3 = Servicios.
+    // El modelo se queda quieto con cada sección centrada y pasa de una pose a
+    // la siguiente en el tramo intermedio, siempre atado al scroll.
+    const vc = window.innerHeight / 2
+    // Se buscan en cada cuadro: React puede reemplazar los nodos al hidratar.
+    const centers = ZONE.map((id) => {
+      const r = document.getElementById(id)?.getBoundingClientRect()
+      return r ? r.top + r.height / 2 : NaN
+    })
+    let f = 0
+    if (centers.every((c) => !Number.isNaN(c))) {
+      const last = ZONE.length - 1
+      if (vc >= centers[last]) f = last
+      else
+        for (let i = 0; i < last; i++)
+          if (vc >= centers[i] && vc < centers[i + 1]) {
+            f = i + (vc - centers[i]) / (centers[i + 1] - centers[i])
+            break
+          }
+    }
+    const i0 = Math.min(Math.floor(f), ZONE.length - 2)
+    const raw = THREE.MathUtils.clamp((f - i0 - 0.3) / 0.4, 0, 1)
+    const e = reduced ? Math.round(raw) : raw * raw * (3 - 2 * raw)
+    const fa = zoneFocus(i0)
+    const fb = zoneFocus(i0 + 1)
+    const A = VIEWS[fa]
+    const B = VIEWS[fb]
+    const mix = (a: number, b: number) => a + (b - a) * e
+
+    // Cámara y lado de la pantalla.
     const fov = (camera as THREE.PerspectiveCamera).fov
-    const dist = view.dist * (mobile ? 1.3 : 1)
+    const dist = mix(A.dist, B.dist) * (mobile ? 1.3 : 1)
     const visibleH = 2 * dist * Math.tan(THREE.MathUtils.degToRad(fov / 2))
     const visibleW = visibleH * (size.width / size.height)
-    const offsetX = mobile ? 0 : sideFor(active) * visibleW * 0.23
-    const camY = view.y - (mobile ? visibleH * 0.2 : 0)
-    easing.damp3(target.current, [offsetX, 0, 0], smooth, dt)
-    easing.damp3(camera.position, [0, camY, dist], smooth, dt)
-    root.current.position.x = target.current.x
-    camera.lookAt(0, camY, 0)
+    const offsetX = mobile ? 0 : mix(SIDES[i0], SIDES[i0 + 1]) * visibleW * 0.23
+    const camY = mix(A.y, B.y) - (mobile ? visibleH * 0.2 : 0)
+    const k = reduced ? 0.0001 : 0.16
+    easing.damp(root.current.position, 'x', offsetX, k, dt)
+    easing.damp3(camera.position, [0, camY, dist], k, dt)
+    camera.lookAt(0, camera.position.y, 0)
 
-    // Rotación: posición de la zona, oscilación lenta en el hero y leve paralaje del mouse.
-    const sway = focus === 'hero' && !reduced ? Math.sin(t * 0.22) * 0.5 : 0
+    // Rotación: pose de la zona, oscilación lenta en el hero y leve paralaje del mouse.
+    const heroW = i0 === 0 ? 1 - e : 0
+    const sway = reduced ? 0 : Math.sin(t * 0.22) * 0.5 * heroW
     const px = reduced ? 0 : pointer.current.x * 0.14
     const py = reduced ? 0 : pointer.current.y * 0.05
-    easing.damp(spin.current.rotation, 'y', view.rotY + sway + px, smooth * 1.4, dt)
-    easing.damp(spin.current.rotation, 'x', py, smooth, dt)
+    easing.damp(spin.current.rotation, 'y', mix(A.rotY, B.rotY) + sway + px, reduced ? 0.0001 : 0.22, dt)
+    easing.damp(spin.current.rotation, 'x', py, 0.3, dt)
 
     // Iluminación de zonas: el naranja marca dónde actuamos.
-    ;(['C', 'T', 'L', 'pelvis', 'femur'] as const).forEach((k) => {
-      const lit = view.lit[k] ?? 0
-      const m = mats[k]
-      easing.damp(m, 'emissiveIntensity', lit * 0.85, 0.35, dt)
-      easing.dampC(m.color, lit > 0 ? BONE_LIT : view.dimRest ? BONE_DIM : BONE, 0.35, dt)
+    const dim = mix(A.dimRest ? 1 : 0, B.dimRest ? 1 : 0)
+    ;(['C', 'T', 'L', 'pelvis', 'femur'] as const).forEach((key) => {
+      const lit = mix(A.lit[key] ?? 0, B.lit[key] ?? 0)
+      const m = mats[key]
+      easing.damp(m, 'emissiveIntensity', lit * 0.85, 0.2, dt)
+      tmp.c.copy(BONE).lerp(BONE_DIM, dim).lerp(BONE_LIT, Math.min(1, lit * 1.4))
+      easing.dampC(m.color, tmp.c, 0.2, dt)
     })
     const ribsIn = reduced ? 1 : THREE.MathUtils.clamp((since - 1.2) / 1.2, 0, 1)
-    easing.damp(mats.ribs, 'opacity', view.ribs * ribsIn, 0.4, dt)
+    easing.damp(mats.ribs, 'opacity', mix(A.ribs, B.ribs) * ribsIn, 0.2, dt)
     mats.ribs.visible = mats.ribs.opacity > 0.01
-    easing.damp(mats.chain, 'opacity', (view.chain ?? 0) * 0.9, 0.35, dt)
-    easing.damp(mats.joint, 'opacity', view.joints ?? 0, 0.35, dt)
-    easing.damp(mats.plumb, 'opacity', (view.plumb ?? 0) * 0.55, 0.35, dt)
-    easing.damp(mats.flow, 'opacity', view.chain ?? 0, 0.35, dt)
+    const chain = mix(A.chain ?? 0, B.chain ?? 0)
+    const joints = mix(A.joints ?? 0, B.joints ?? 0)
+    easing.damp(mats.chain, 'opacity', chain * 0.9, 0.2, dt)
+    easing.damp(mats.flow, 'opacity', chain, 0.2, dt)
+    easing.damp(mats.joint, 'opacity', joints, 0.2, dt)
+    easing.damp(mats.plumb, 'opacity', mix(A.plumb ?? 0, B.plumb ?? 0) * 0.55, 0.2, dt)
 
     // Pulso en articulaciones y flujo sobre la cadena posterior.
     const pulse = reduced ? 0.5 : (t * 0.6) % 1
-    haloRefs.current.forEach((h) => {
-      if (!h) return
-      h.scale.setScalar(1 + pulse * 1.6)
-    })
-    mats.halo.opacity = (view.joints ?? 0) * (1 - pulse) * 0.55
-    flowRefs.current.forEach((f, i) => {
-      if (!f) return
+    haloRefs.current.forEach((h) => h?.scale.setScalar(1 + pulse * 1.6))
+    mats.halo.opacity = mats.joint.opacity * (1 - pulse) * 0.55
+    flowRefs.current.forEach((fl, i) => {
+      if (!fl) return
       const curve = data.chain[i % 2]
       const u = reduced ? ((Math.floor(i / 2) + 0.5) / 5) % 1 : (t * 0.08 + Math.floor(i / 2) / 5) % 1
-      f.position.copy(curve.getPointAt(u))
+      fl.position.copy(curve.getPointAt(u))
     })
+
+    // Anotaciones: solo con el modelo en reposo, para que no crucen la pantalla.
+    const nf = e < 0.06 ? fa : e > 0.94 ? fb : null
+    if (nf !== noteRef.current) {
+      noteRef.current = nf
+      setNoteFocus(nf)
+    }
+
+    // Títulos y textos: si el modelo pasa por detrás, su fondo se desenfoca.
+    let x0 = Infinity
+    let x1 = -Infinity
+    let y0 = Infinity
+    let y1 = -Infinity
+    if (!mobile) {
+      spin.current.updateWorldMatrix(true, false)
+      const cr = gl.domElement.getBoundingClientRect()
+      for (const p of corners) {
+        tmp.v.copy(p).applyMatrix4(spin.current.matrixWorld).project(camera)
+        const sx = cr.left + ((tmp.v.x + 1) / 2) * cr.width
+        const sy = cr.top + ((1 - tmp.v.y) / 2) * cr.height
+        x0 = Math.min(x0, sx)
+        x1 = Math.max(x1, sx)
+        y0 = Math.min(y0, sy)
+        y1 = Math.max(y1, sy)
+      }
+      const pad = (x1 - x0) * 0.14
+      x0 += pad
+      x1 -= pad
+    }
+    for (const el of document.querySelectorAll<HTMLElement>('[data-shield]')) {
+      const r = el.getBoundingClientRect()
+      const over = !mobile && r.right > x0 && r.left < x1 && r.bottom > y0 && r.top < y1
+      if ((el.dataset.over === 'true') !== over) el.dataset.over = String(over)
+    }
   })
 
   return (
@@ -257,13 +336,21 @@ function Anatomy({ reduced }: { reduced: boolean }) {
         <mesh material={mats.plumb} position={[0, -1.3, 0]}>
           <cylinderGeometry args={[0.008, 0.008, 9, 6]} />
         </mesh>
-        {notesReady && <Notes anchors={data.anchors} focus={focus} reduced={reduced} />}
+        {notesReady && <Notes anchors={data.anchors} focus={noteFocus} reduced={reduced} />}
       </group>
     </group>
   )
 }
 
-function Notes({ anchors, focus, reduced }: { anchors: Record<string, THREE.Vector3>; focus: Focus; reduced: boolean }) {
+function Notes({
+  anchors,
+  focus,
+  reduced,
+}: {
+  anchors: Record<string, THREE.Vector3>
+  focus: Focus | null
+  reduced: boolean
+}) {
   return (
     <>
       {NOTES.map((n, i) => (

@@ -1,6 +1,6 @@
 export const WHATSAPP_NUMBER = '5491122519048'
 export const WHATSAPP_MESSAGE =
-  '¡Hola! Me contacto desde el sitio web de Génesis - Kinesiología, RPG y Osteopatía. Estoy interesado/a en más información sobre sus servicios.'
+  '¡Hola! Me contacto desde el sitio web de Génesis - Kinesiología, Osteopatía y RPG. Estoy interesado/a en más información sobre sus servicios.'
 export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`
 
 export const CONTACT = {

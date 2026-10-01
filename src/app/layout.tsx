@@ -7,7 +7,7 @@ import { GoogleAnalytics } from "@next/third-parties/google"
 
 export const metadata: Metadata = {
   title: "Génesis",
-  description: "Génesis: kinesiología, RPG y Osteopatía en Recoleta, CABA. Prevención, evaluación y tratamiento de alteraciones del movimiento y la función física.",
+  description: "Génesis: kinesiología, Osteopatía y RPG en Recoleta, CABA. Prevención, evaluación y tratamiento de alteraciones del movimiento y la función física.",
   keywords: [
     "RPG Kinesiología",
     "Centro de Osteopatía",

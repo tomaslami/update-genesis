@@ -78,6 +78,37 @@ body {
   }
 }
 
+/* Velo que aparece detrás de un bloque de texto solo cuando el modelo 3D
+   pasa por detrás (lo activa la escena con data-over). */
+@media (min-width: 1024px) {
+  [data-shield] {
+    position: relative;
+    isolation: isolate;
+  }
+  [data-shield]::before {
+    content: '';
+    position: absolute;
+    inset: -56px -64px;
+    z-index: -1;
+    background: rgba(0, 35, 55, 0.5);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    /* Bordes difuminados: el velo se funde con el fondo en lugar de cortar el modelo. */
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 48px, #000 calc(100% - 48px), transparent),
+      linear-gradient(to bottom, transparent, #000 48px, #000 calc(100% - 48px), transparent);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to right, transparent, #000 48px, #000 calc(100% - 48px), transparent),
+      linear-gradient(to bottom, transparent, #000 48px, #000 calc(100% - 48px), transparent);
+    mask-composite: intersect;
+    opacity: 0;
+    transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  [data-shield][data-over='true']::before {
+    opacity: 1;
+  }
+}
+
 .hero-photo {
   filter: blur(10px) saturate(0.9);
   transform: scale(1.08);

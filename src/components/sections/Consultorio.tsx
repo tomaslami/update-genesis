@@ -52,9 +52,10 @@ export default function Consultorio() {
             ))}
           </div>
         </div>
-        <div ref={track} className="gallery flex snap-x snap-mandatory gap-5 overflow-x-auto pb-1">
+        <Reveal>
+        <div ref={track} className="gallery flex snap-x snap-mandatory gap-5 overflow-x-auto overflow-y-hidden overscroll-x-contain">
           {PHOTOS.map((p, i) => (
-            <Reveal as="figure" key={p.src} delay={i * 0.06} className="flex shrink-0 snap-start flex-col gap-2.5">
+            <figure key={p.src} className="flex shrink-0 snap-start flex-col gap-2.5">
               <div className="h-[380px] w-[280px] overflow-hidden rounded-xl sm:h-[440px] sm:w-[340px]">
                 <Image
                   src={p.src}
@@ -66,9 +67,10 @@ export default function Consultorio() {
                 />
               </div>
               <figcaption className="lbl text-white/70">08.{i + 1}</figcaption>
-            </Reveal>
+            </figure>
           ))}
         </div>
+        </Reveal>
       </div>
     </section>
   )

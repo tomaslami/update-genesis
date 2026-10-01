@@ -8,7 +8,7 @@ import SectionLabel from '@/components/ui/SectionLabel'
 import { EASE } from '@/components/ui/Reveal'
 
 const PHRASES = ['disminuir el dolor', 'recuperar la movilidad', 'mejorar la fuerza', 'favorecer la función que buscas']
-const LINES = ['Especialistas en', 'RPG y Osteopatía']
+const LINES = ['Especialistas en', 'Kinesiología,', 'Osteopatía y RPG']
 
 export default function Hero() {
   const reduce = useReducedMotion()
@@ -29,7 +29,7 @@ export default function Hero() {
   return (
     <section id="inicio" className="zone-section relative z-10 min-h-[100svh]">
       <div className="wrap grid w-full lg:grid-cols-2">
-        <div className="zone-panel flex flex-col gap-7 pb-16 lg:pb-0">
+        <div data-shield className="zone-panel flex flex-col gap-7 pb-16 lg:pb-0">
           <motion.div {...rise(0)}>
             <SectionLabel n="01" dark>
               Cuerpo
@@ -82,7 +82,7 @@ export default function Hero() {
             </a>
           </motion.div>
           <motion.div {...rise(0.9)} className="lbl mt-4 flex flex-wrap gap-5 text-white/75">
-            <span>Kinesiología · RPG · Osteopatía</span>
+            <span>Kinesiología · Osteopatía · RPG</span>
             <span>Recoleta, CABA</span>
           </motion.div>
         </div>

@@ -81,8 +81,3 @@ export function focusFor(s: State): Focus {
       return 'full'
   }
 }
-
-/** Lado de la pantalla donde se ubica el modelo en desktop (1 derecha, -1 izquierda). */
-export function sideFor(active: SectionId): number {
-  return active === 'kinesiologia' || active === 'servicios' ? -1 : 1
-}
