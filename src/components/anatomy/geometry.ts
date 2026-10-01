@@ -19,7 +19,9 @@ export type Vertebra = {
   z: number
   width: number
   height: number
+  /** Geometría compartida por región, escalada a esta vértebra. */
   geometry: THREE.BufferGeometry
+  scale: [number, number, number]
 }
 
 export type Anatomy = {
@@ -43,6 +45,8 @@ const REGIONS: { region: Region; count: number; h: number; w0: number; w1: numbe
   { region: 'L', count: 5, h: 0.2, w0: 0.62, w1: 0.76 },
 ]
 const GAP = 0.055
+/** Ancho de referencia de cada región: se construye una sola vértebra por región y se escala. */
+const REF_W: Record<Region, number> = { C: 0.35, T: 0.5, L: 0.69 }
 const TOP = 2.4
 
 /** Curvas sagitales: lordosis cervical, cifosis dorsal, lordosis lumbar. */
@@ -99,12 +103,12 @@ function strut(a: THREE.Vector3, b: THREE.Vector3, ra: number, rb = ra) {
   const dir = new THREE.Vector3().subVectors(b, a)
   const len = dir.length()
   const q = new THREE.Quaternion().setFromUnitVectors(up, dir.clone().normalize())
-  const body = new THREE.CylinderGeometry(rb, ra, len, 14, 1, true)
+  const body = new THREE.CylinderGeometry(rb, ra, len, 7, 1, true)
   body.applyQuaternion(q)
   body.translate((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2)
-  const capA = new THREE.SphereGeometry(ra, 14, 10)
+  const capA = new THREE.SphereGeometry(ra, 7, 4)
   capA.translate(a.x, a.y, a.z)
-  const capB = new THREE.SphereGeometry(rb, 14, 10)
+  const capB = new THREE.SphereGeometry(rb, 7, 4)
   capB.translate(b.x, b.y, b.z)
   return [body, capA, capB]
 }
@@ -156,7 +160,7 @@ function sweep(
 /** Sección del cuerpo vertebral: óvalo con el borde posterior cóncavo (forma de riñón). */
 function bodyShape(w: number, d: number) {
   const shape = new THREE.Shape()
-  const n = 40
+  const n = 28
   for (let i = 0; i <= n; i++) {
     const t = (i / n) * Math.PI * 2
     const x = (w / 2) * Math.cos(t)
@@ -179,8 +183,8 @@ function vertebraGeometry(region: Region, w: number, h: number) {
     bevelEnabled: true,
     bevelThickness: h * 0.12,
     bevelSize: w * 0.045,
-    bevelSegments: 4,
-    curveSegments: 40,
+    bevelSegments: 2,
+    curveSegments: 28,
   })
   body.rotateX(-Math.PI / 2)
   body.translate(0, -h * 0.38, 0)
@@ -209,7 +213,7 @@ function vertebraGeometry(region: Region, w: number, h: number) {
   const len = region === 'C' ? w * 0.5 : region === 'T' ? w * 0.75 : w * 0.55
   const tip = lamTop.clone().add(new THREE.Vector3(0, -Math.sin(tilt) * len, -Math.cos(tilt) * len))
   if (region === 'L') {
-    const hatchet = new THREE.SphereGeometry(1, 18, 14)
+    const hatchet = new THREE.SphereGeometry(1, 12, 8)
     hatchet.scale(h * 0.1, h * 0.42, len * 0.5)
     hatchet.translate(0, (lamTop.y + tip.y) / 2, (lamTop.z + tip.z) / 2)
     parts.push(hatchet)
@@ -267,15 +271,15 @@ function wingShape(s: number) {
     bevelEnabled: true,
     bevelThickness: 0.05,
     bevelSize: 0.045,
-    bevelSegments: 5,
-    curveSegments: 40,
+    bevelSegments: 3,
+    curveSegments: 22,
   })
   g.translate(0, 0, -0.025)
   const pos = g.attributes.position
   for (let i = 0; i < pos.count; i++) pos.setZ(i, pos.getZ(i) + wingBend(s, pos.getX(i)))
   const wing = smooth(g)
   // Acetábulo: el anillo donde encaja la cabeza del fémur.
-  const socket = new THREE.TorusGeometry(0.2, 0.045, 12, 32)
+  const socket = new THREE.TorusGeometry(0.2, 0.045, 8, 24)
   const c = wingLocal(s, 138, 122, 0.04)
   socket.translate(c.x, c.y, c.z)
   return merge([wing, socket])
@@ -303,8 +307,8 @@ function sacrumGeometry() {
     bevelEnabled: true,
     bevelThickness: 0.05,
     bevelSize: 0.04,
-    bevelSegments: 5,
-    curveSegments: 32,
+    bevelSegments: 3,
+    curveSegments: 14,
   })
   g.translate(0, 0, -0.06)
   // Leve curvatura hacia atrás (cifosis sacra).
@@ -314,7 +318,7 @@ function sacrumGeometry() {
   // Cóccix: tres segmentos que se afinan.
   const coccyx: THREE.BufferGeometry[] = []
   for (let k = 0; k < 3; k++) {
-    const seg = new THREE.SphereGeometry(1, 16, 12)
+    const seg = new THREE.SphereGeometry(1, 10, 8)
     seg.scale(0.07 - k * 0.015, 0.045, 0.05)
     seg.translate(0, -1.12 - k * 0.09, -0.16 - k * 0.04)
     coccyx.push(seg)
@@ -325,6 +329,9 @@ function sacrumGeometry() {
 // ——— modelo completo ———
 
 export function buildAnatomy(): Anatomy {
+  const templates = Object.fromEntries(
+    REGIONS.map((r) => [r.region, vertebraGeometry(r.region, REF_W[r.region], r.h)]),
+  ) as Record<Region, THREE.BufferGeometry>
   const vertebrae: Vertebra[] = []
   const discs: THREE.BufferGeometry[] = []
   let y = TOP
@@ -342,7 +349,8 @@ export function buildAnatomy(): Anatomy {
         z,
         width,
         height: reg.h,
-        geometry: vertebraGeometry(reg.region, width, reg.h),
+        geometry: templates[reg.region],
+        scale: [width / REF_W[reg.region], 1, width / REF_W[reg.region]],
       })
       y -= reg.h + GAP
       i++
@@ -362,7 +370,7 @@ export function buildAnatomy(): Anatomy {
       new THREE.Vector2(r * 0.94, hh / 2),
       new THREE.Vector2(0, hh / 2),
     ]
-    const g = new THREE.LatheGeometry(profile, 32)
+    const g = new THREE.LatheGeometry(profile, 20)
     g.scale(1, 1, 0.72)
     g.translate(0, (a.y - a.height / 2 + b.y + b.height / 2) / 2, (a.z + b.z) / 2)
     discs.push(g)
@@ -389,7 +397,7 @@ export function buildAnatomy(): Anatomy {
         new THREE.Vector3(s * W * 0.55, v.y - dr * 0.88, v.z + 0.78),
       ]
       const bone = new THREE.CatmullRomCurve3(pts)
-      ribs.push(sweep(bone, 64, 10, (u) => [0.016 + 0.006 * (1 - u), 0.024 + 0.03 * Math.sin(Math.PI * Math.min(u * 1.4, 1))]))
+      ribs.push(sweep(bone, 32, 8, (u) => [0.016 + 0.006 * (1 - u), 0.024 + 0.03 * Math.sin(Math.PI * Math.min(u * 1.4, 1))]))
       // Cartílago: une el extremo de la costilla con el esternón (o con la costilla de arriba).
       const end = pts[pts.length - 1]
       const cart = new THREE.CatmullRomCurve3([
@@ -399,7 +407,7 @@ export function buildAnatomy(): Anatomy {
           ? new THREE.Vector3(s * 0.11, sternumTop - 0.1 - j * 0.14, sternumZ)
           : new THREE.Vector3(s * W * 0.3, end.y + 0.26, v.z + 0.88),
       ])
-      cartilage.push(sweep(cart, 24, 8, () => [0.014, 0.02]))
+      cartilage.push(sweep(cart, 12, 6, () => [0.014, 0.02]))
     }
   }
   // Esternón: manubrio y cuerpo, plano.
@@ -450,14 +458,14 @@ export function buildAnatomy(): Anatomy {
   const femurParts: THREE.BufferGeometry[] = []
   hips.forEach((h, idx) => {
     const s = idx === 0 ? -1 : 1
-    const head = new THREE.SphereGeometry(0.17, 32, 24)
+    const head = new THREE.SphereGeometry(0.17, 20, 14)
     head.translate(h.x, h.y, h.z)
     const neckEnd = new THREE.Vector3(h.x + s * 0.24, h.y - 0.13, h.z - 0.06)
     femurParts.push(head, ...strut(h, neckEnd, 0.085, 0.1))
-    const troch = new THREE.SphereGeometry(1, 20, 16)
+    const troch = new THREE.SphereGeometry(1, 12, 10)
     troch.scale(0.12, 0.15, 0.11)
     troch.translate(h.x + s * 0.33, h.y - 0.1, h.z - 0.1)
-    const lesser = new THREE.SphereGeometry(0.055, 14, 10)
+    const lesser = new THREE.SphereGeometry(0.055, 8, 6)
     lesser.translate(h.x + s * 0.2, h.y - 0.32, h.z - 0.1)
     femurParts.push(troch, lesser)
     const shaft = new THREE.CatmullRomCurve3([
@@ -465,8 +473,8 @@ export function buildAnatomy(): Anatomy {
       new THREE.Vector3(h.x + s * 0.27, h.y - 0.7, h.z + 0.02),
       new THREE.Vector3(h.x + s * 0.18, h.y - 1.45, h.z + 0.05),
     ])
-    femurParts.push(sweep(shaft, 40, 16, (u) => [0.095 - 0.02 * Math.sin(Math.PI * u), 0.09 - 0.02 * Math.sin(Math.PI * u)]))
-    const end = new THREE.SphereGeometry(0.08, 16, 12)
+    femurParts.push(sweep(shaft, 20, 12, (u) => [0.095 - 0.02 * Math.sin(Math.PI * u), 0.09 - 0.02 * Math.sin(Math.PI * u)]))
+    const end = new THREE.SphereGeometry(0.08, 12, 8)
     end.translate(h.x + s * 0.18, h.y - 1.45, h.z + 0.05)
     femurParts.push(end)
   })
@@ -490,7 +498,7 @@ export function buildAnatomy(): Anatomy {
       new THREE.Vector3(h.x + s * 0.18, h.y - 1.4, h.z - 0.32),
     ])
   })
-  const chainGeometry = merge(chain.map((c) => new THREE.TubeGeometry(c, 160, 0.03, 8)))
+  const chainGeometry = merge(chain.map((c) => new THREE.TubeGeometry(c, 90, 0.03, 6)))
 
   const v = (j: number) => vertebrae[j]
   const L45y = (v(22).y - v(22).height / 2 + v(23).y + v(23).height / 2) / 2
