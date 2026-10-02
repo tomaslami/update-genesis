@@ -22,10 +22,10 @@ const config = {
         card: "40px",
       },
       // Modos de la zona anatómica (los mismos que usa la escena 3D: src/lib/layout-mode.ts).
-      //  prt: pantalla angosta en vertical → el modelo arriba, detrás del texto, que sube sobre un velo.
+      //  vis: pantalla angosta en vertical → el modelo en un visor arriba y el texto debajo.
       //  lsc: pantalla angosta en horizontal → modelo a un lado y texto al otro, como en escritorio.
       screens: {
-        prt: { raw: "(max-width: 1023px) and (orientation: portrait)" },
+        vis: { raw: "(max-width: 1023px) and (orientation: portrait)" },
         lsc: { raw: "(max-width: 1023px) and (orientation: landscape)" },
       },
     },

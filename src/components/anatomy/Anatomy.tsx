@@ -7,7 +7,7 @@ import { markModelIntroDone } from '@/lib/intro'
 import { focusFor, store, type Focus } from '@/lib/store'
 import type { LayoutMode } from '@/lib/layout-mode'
 import type { SectionId } from '@/lib/site'
-import { AMBIENT_FPS, INTERACTION_MS, PORTRAIT, SIDES, VIEWS, ZONE } from './config'
+import { AMBIENT_FPS, INTERACTION_MS, SIDES, VIEWS, VISOR_DIST, ZONE } from './config'
 import type { RenderControl } from './control'
 import { damp, damp3, dampColor } from './damp'
 import type { Anatomy as AnatomyData } from './geometry'
@@ -35,7 +35,7 @@ const FIXED_STEP = 1 / 60
 
 type Props = {
   data: AnatomyData
-  /** Escritorio y horizontal: modelo a un lado del texto. Vertical: modelo centrado detrás del texto. */
+  /** Escritorio y horizontal: modelo a un lado del texto. Vertical: modelo centrado en el visor. */
   mode: LayoutMode
   reduced: boolean
   notes: NoteRegistry
@@ -144,11 +144,11 @@ export default function Anatomy({ data, mode, reduced, notes, control }: Props) 
     }
 
     // Posición continua del scroll dentro de la zona: 0 = Hero … 3 = Servicios.
-    // La línea de lectura es el centro de la pantalla.
+    // La línea de lectura es el centro de la pantalla (o, en vertical, el centro del área de texto bajo el visor).
     const L = layout.current
     const sy = window.scrollY
     const vh = window.innerHeight
-    const vc = sy + vh / 2
+    const vc = sy + (portrait ? size.height + (vh - size.height) / 2 : vh / 2)
     const centers = L?.centers ?? []
     let f = 0
     if (centers.length === ZONE.length) {
@@ -172,11 +172,11 @@ export default function Anatomy({ data, mode, reduced, notes, control }: Props) 
 
     // Cámara y lado de la pantalla.
     const fov = (camera as THREE.PerspectiveCamera).fov
-    const dist = mix(A.dist, B.dist) * (portrait ? PORTRAIT.dist : 1)
+    const dist = mix(A.dist, B.dist) * (portrait ? VISOR_DIST : 1)
     const visibleH = 2 * dist * Math.tan(THREE.MathUtils.degToRad(fov / 2))
     const visibleW = visibleH * (size.width / size.height)
     const offsetX = portrait ? 0 : mix(SIDES[i0], SIDES[i0 + 1]) * visibleW * 0.23
-    const camY = mix(A.y, B.y) - (portrait ? visibleH * PORTRAIT.lift : 0)
+    const camY = mix(A.y, B.y)
     const k = reduced ? 0.0001 : 0.16
     // La cámara y el lado de la pantalla solo cambian entre poses: si se mueven, el modelo está "viajando".
     const shifted = damp(root.current.position, 'x', offsetX, k, dt)
@@ -254,7 +254,7 @@ export default function Anatomy({ data, mode, reduced, notes, control }: Props) 
     placeNotes(notes, data.anchors, spin.current, camera as THREE.PerspectiveCamera, size.width, size.height, fa, fb, now)
 
     // ¿Hay un texto delante del modelo? Todo con posiciones ya medidas: sin leer el layout.
-    // (En vertical el texto siempre sube sobre el modelo, con su propio velo: no se apaga.)
+    // (En vertical el texto nunca pasa por delante: va por detrás del visor.)
     let behind = false
     if (!portrait && L) {
       // El lienzo queda pegado arriba durante la zona y sube con ella al terminar.

@@ -6,10 +6,10 @@ import { useEffect, useState } from 'react'
  * Cómo se reparte la pantalla entre el modelo 3D y el texto:
  *  - desktop:   pantalla ancha (≥ 1024 px). Modelo a un lado, texto al otro; el lado alterna por sección.
  *  - landscape: pantalla angosta en horizontal (celular girado). El mismo esquema que en escritorio, a escala.
- *  - portrait:  pantalla angosta en vertical (celular, tablet). El modelo, centrado y en la parte de
- *               arriba, recorre la página detrás del contenido; el texto sube sobre un velo.
+ *  - portrait:  pantalla angosta en vertical (celular, tablet). El modelo vive en un visor fijo arriba y
+ *               el texto se lee debajo, pasando por detrás del visor: nunca lo tapa.
  *
- * Las mismas consultas definen las variantes `prt:` y `lsc:` de Tailwind.
+ * Las mismas consultas definen las variantes `vis:` y `lsc:` de Tailwind.
  */
 export type LayoutMode = 'desktop' | 'landscape' | 'portrait'
 

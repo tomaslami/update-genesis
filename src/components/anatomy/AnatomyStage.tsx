@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic'
 import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { heroIntroDone } from '@/lib/intro'
+import { LAYOUT_QUERIES } from '@/lib/layout-mode'
 import { wait } from '@/lib/schedule'
 import SpinePlaceholder from './SpinePlaceholder'
 
@@ -26,10 +27,17 @@ class SceneBoundary extends Component<{ children: ReactNode; onError: () => void
 
 const hasWebGLApi = () => typeof WebGL2RenderingContext !== 'undefined' || typeof WebGLRenderingContext !== 'undefined'
 
+/** Cuántos px de scroll tarda el visor (vertical) en volverse opaco: en el hero deja ver la foto de fondo. */
+const VISOR_FADE_PX = 56
+
 /**
  * Escenario fijo del modelo 3D. Ocupa toda la "zona anatómica" (Hero →
  * Servicios): el lienzo queda pegado a la pantalla mientras pasan las
  * secciones y se retira al terminar Servicios.
+ *
+ * En pantallas angostas verticales el lienzo es un visor fijo arriba, por
+ * encima del texto: el texto se lee debajo y pasa por detrás del visor, así el
+ * modelo nunca queda tapado (ver `.visor-bg` en globals.css).
  *
  * Mientras el modelo se prepara se ve la columna 2D; cuando el primer cuadro
  * está listo, la columna se funde y el modelo entra con su animación.
@@ -40,6 +48,7 @@ const hasWebGLApi = () => typeof WebGL2RenderingContext !== 'undefined' || typeo
  */
 export default function AnatomyStage() {
   const zone = useRef<HTMLDivElement>(null)
+  const visorBg = useRef<HTMLDivElement>(null)
   const [load, setLoad] = useState(false)
   const [running, setRunning] = useState(true)
   const [reduced, setReduced] = useState(false)
@@ -71,12 +80,42 @@ export default function AnatomyStage() {
     return () => io.disconnect()
   }, [])
 
+  // Visor vertical: transparente en el hero (se ve la foto) y opaco apenas el texto empieza a subir.
+  useEffect(() => {
+    const bg = visorBg.current
+    if (!bg) return
+    const portrait = window.matchMedia(LAYOUT_QUERIES.portrait)
+    let raf = 0
+    let last = -1
+    const update = () => {
+      raf = 0
+      if (!portrait.matches) return
+      const k = Math.min(1, Math.max(0, window.scrollY / VISOR_FADE_PX))
+      if (k === last) return
+      last = k
+      bg.style.opacity = String(k)
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    portrait.addEventListener('change', update)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', onScroll)
+      portrait.removeEventListener('change', update)
+    }
+  }, [])
+
   const onReady = useCallback(() => setShown(true), [])
   const onError = useCallback(() => setFailed(true), [])
 
   return (
-    <div ref={zone} aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1]">
-      <div className="sticky top-0 h-[100svh] w-full">
+    <div ref={zone} aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1] vis:z-20">
+      <div className="sticky top-0 h-[100svh] w-full vis:h-[var(--visor)]">
+        {/* Bloquea los toques sobre el texto que pasa por detrás del visor. */}
+        <div ref={visorBg} className="visor-bg absolute inset-0 hidden opacity-0 vis:pointer-events-auto vis:block" />
         {!placeholderGone && (
           <div
             className="absolute inset-0 transition-opacity duration-700 ease-out motion-reduce:transition-none"

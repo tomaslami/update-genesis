@@ -63,11 +63,8 @@ export const EXPOSURE = 1.25
 /** Resolución máxima del lienzo (relación de píxeles) según el tipo de pantalla. */
 export const MAX_DPR = { desktop: 1.5, mobile: 1.3 }
 
-/**
- * Encuadre en vertical: el modelo centrado detrás de toda la pantalla, más lejos
- * (`dist`) y subido (`lift`, fracción del alto visible) para que el texto entre por abajo.
- */
-export const PORTRAIT = { dist: 1.42, lift: 0.15 }
+/** Encuadre en el visor vertical: el modelo centrado; > 1 lo aleja un poco para que respire. */
+export const VISOR_DIST = 1.04
 
 /** Cuadros por segundo del movimiento "ambiente" (oscilación del hero, pulsos): el ojo no distingue más. */
 export const AMBIENT_FPS = 30
