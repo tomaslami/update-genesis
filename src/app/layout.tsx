@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Nunito } from 'next/font/google'
-import FloatingButton from "@/components/tools/FloatingButton";
-import { TagManagerProvider } from "@/components/tools/TagManager";
-import { GoogleAnalytics } from "@next/third-parties/google"
+import Analytics from "@/components/tools/Analytics";
+import MotionProvider from "@/components/tools/MotionProvider";
 
 
 export const metadata: Metadata = {
   title: "Génesis",
-  description: "Consultorio de Kinestesiología y Fisioterapia",
+  description: "Génesis: kinesiología, Osteopatía y RPG en Recoleta, CABA. Prevención, evaluación y tratamiento de alteraciones del movimiento y la función física.",
   keywords: [
     "RPG Kinesiología",
     "Centro de Osteopatía",
@@ -43,7 +42,8 @@ export const metadata: Metadata = {
   ]
 };
 
-const nunito = Nunito({ subsets: ['latin'] })
+// Nunito es variable: un solo archivo cubre todos los pesos (el sitio usa 400, 700 y 800).
+const nunito = Nunito({ subsets: ['latin'], variable: '--font-nunito' })
 
 export default function RootLayout({
   children,
@@ -53,12 +53,9 @@ export default function RootLayout({
   return (
     <>
       <html lang="es">
-        <body className={nunito.className} >
-          <GoogleAnalytics gaId="G-BNR9CJ65S6" />
-          <TagManagerProvider>
-            {children}
-            <FloatingButton phoneNumber="5491122519048" />
-          </TagManagerProvider>
+        <body className={`${nunito.variable} ${nunito.className}`}>
+          <MotionProvider>{children}</MotionProvider>
+          <Analytics />
         </body>
       </html>
     </>

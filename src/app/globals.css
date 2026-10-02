@@ -2,22 +2,319 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+html {
   scroll-behavior: smooth;
+  scroll-padding-top: 24px;
 }
 
+body {
+  background: #ffffff;
+  color: #000000;
+}
 
 ::-webkit-scrollbar {
   width: 12px;
 }
-
 ::-webkit-scrollbar-thumb {
   background-color: #002337;
 }
-
 ::-webkit-scrollbar-track {
   background-color: #f3f3f3;
+}
+
+:focus-visible {
+  outline: 2px solid #002337;
+  outline-offset: 3px;
+}
+.bg-navy :focus-visible {
+  outline-color: #ffffff;
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto w-full max-w-[1320px] px-[5%];
+  }
+  /* Etiqueta anatómica: números de lámina, anotaciones y nav. */
+  .lbl {
+    @apply text-[12px] font-bold uppercase leading-4 tracking-[0.16em];
+  }
+  .h2 {
+    @apply text-[30px] font-extrabold leading-9 tracking-[-0.01em] sm:text-[44px] sm:leading-[50px];
+  }
+  .field {
+    @apply w-full rounded-md border border-field bg-surface-muted px-3.5 py-3 text-base font-normal text-ink;
+  }
+  /* Grilla de lámina: líneas guía muy tenues. */
+  .lamina-grid {
+    background-image: linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+}
+
+/* Secciones de la zona 3D. Tres modos (ver src/lib/layout-mode.ts):
+   - escritorio: el texto va a un lado del modelo;
+   - horizontal (pantalla angosta girada): igual que escritorio, a escala;
+   - vertical (celular, tablet): el modelo vive en un visor fijo arriba y el texto se lee
+     debajo, pasando por detrás del visor; nunca tapa el modelo. */
+:root {
+  /* Alto del visor del modelo en vertical y espacio que ocupa la barra inferior. */
+  --visor: 46svh;
+  --dock: 88px;
+}
+@media (max-height: 700px) {
+  :root {
+    --visor: 42svh;
+  }
+}
+.zone-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.zone-panel {
+  min-width: 0;
+}
+@media (max-width: 1023px) and (orientation: portrait) {
+  .zone-section {
+    justify-content: flex-start;
+    min-height: 0;
+    padding-top: 18svh;
+  }
+  /* El hero arranca justo debajo del visor y ocupa la primera pantalla. */
+  #inicio.zone-section {
+    min-height: 100svh;
+    padding-top: calc(var(--visor) + 12px);
+  }
+  .zone-panel {
+    width: 100%;
+    max-width: 640px;
+    margin-inline: auto;
+    padding-bottom: 72px;
+  }
+}
+@media (max-width: 1023px) and (orientation: landscape) {
+  .zone-section {
+    padding-bottom: var(--dock);
+  }
+  /* El hero arranca debajo del logo. */
+  #inicio.zone-section {
+    padding-top: 76px;
+  }
+  /* Poco alto: los títulos de lámina bajan a escala de celular. */
+  .h2 {
+    font-size: 28px;
+    line-height: 34px;
+  }
+}
+
+/* Visor del modelo en vertical: fondo azul de lámina que aparece al empezar a leer,
+   con un borde inferior difuminado por donde entra el texto. */
+.visor-bg {
+  background-color: #002337;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+.visor-bg::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
+  height: 40px;
+  background: linear-gradient(to bottom, #002337, rgba(0, 35, 55, 0));
+}
+
+.hero-photo {
+  filter: blur(10px) saturate(0.9);
+  transform: scale(1.08);
+  animation: breathe 22s ease-in-out infinite alternate;
+}
+@keyframes breathe {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1.14);
+  }
+}
+
+/* Anotación anatómica: punto naranja, línea guía y etiqueta. */
+.anat-note {
+  position: relative;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  color: #ffffff;
+  white-space: nowrap;
+}
+.anat-note[data-on='true'] {
+  opacity: 1;
+  transform: none;
+}
+.anat-note--left {
+  flex-direction: row-reverse;
+  transform-origin: right center;
+  translate: calc(-100% + 6px) -50%;
+}
+.anat-note--right {
+  translate: -6px -50%;
+}
+.anat-note__dot {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: #f28c38;
+}
+.anat-note__dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgb(242, 140, 56);
+  animation: ring-out 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+/* Las notas apagadas no animan su pulso (no se ven). */
+.anat-note:not([data-on='true']) .anat-note__dot::before {
+  animation: none;
+  opacity: 0;
+}
+.anat-note__line {
+  width: 56px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.75);
+}
+.anat-note__label {
+  display: flex;
+  flex-direction: column;
+  margin: 0 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(0, 35, 55, 0.78);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.anat-note--left .anat-note__label {
+  text-align: right;
+}
+@media (max-width: 1023px) {
+  .anat-note__line {
+    width: 28px;
+  }
+  .anat-note__label {
+    font-size: 10px;
+    line-height: 13px;
+  }
+}
+.pulse-dot {
+  position: relative;
+}
+.pulse-dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgb(242, 140, 56);
+  animation: ring-out 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes ring-out {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    /* 12 px de diámetro + 12 px de anillo por lado = 36 px */
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+.pulse-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulse 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Aparición al entrar en pantalla (componente Reveal): sube 16px y se funde. */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Sin movimiento: solo el fundido. */
+  .reveal {
+    transform: none;
+  }
+}
+
+/* Columna de carga mientras llega el modelo 3D. */
+.spine-placeholder span {
+  animation: stack 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes stack {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Índice vertebral: al pasar el mouse se despliega el índice completo. */
+.spine-nav:hover .spine-nav__label,
+.spine-nav:focus-within .spine-nav__label {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i) * 25ms);
+}
+
+.gallery {
+  scrollbar-width: none;
+}
+.gallery::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .hero-photo,
+  .pulse-ring,
+  .spine-placeholder span {
+    animation: none;
+  }
+  /* Sin animación el anillo del pulso no se muestra (el punto queda como siempre). */
+  .anat-note__dot::before,
+  .pulse-dot::before {
+    animation: none;
+    opacity: 0;
+  }
 }
