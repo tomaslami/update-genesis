@@ -55,17 +55,11 @@ body {
 /* Secciones de la zona 3D. Tres modos (ver src/lib/layout-mode.ts):
    - escritorio: el texto va a un lado del modelo;
    - horizontal (pantalla angosta girada): igual que escritorio, a escala;
-   - vertical (celular, tablet): el modelo vive en un visor fijo arriba y el texto se lee
-     debajo, pasando por detrás del visor; nunca tapa el modelo. */
+   - vertical (celular, tablet): el modelo recorre la página detrás del contenido, en la
+     parte de arriba, y el texto sube sobre un velo. */
 :root {
-  /* Alto del visor del modelo en vertical y espacio que ocupa la barra inferior. */
-  --visor: 46svh;
+  /* Espacio que ocupa la barra inferior. */
   --dock: 88px;
-}
-@media (max-height: 700px) {
-  :root {
-    --visor: 42svh;
-  }
 }
 .zone-section {
   display: flex;
@@ -77,20 +71,18 @@ body {
 }
 @media (max-width: 1023px) and (orientation: portrait) {
   .zone-section {
-    justify-content: flex-start;
-    min-height: 0;
-    padding-top: 18svh;
+    justify-content: flex-end;
+    padding-top: 46svh;
   }
-  /* El hero arranca justo debajo del visor y ocupa la primera pantalla. */
+  /* El hero sube un poco para que el botón de WhatsApp quede a la vista sobre la barra. */
   #inicio.zone-section {
-    min-height: 100svh;
-    padding-top: calc(var(--visor) + 12px);
+    padding-top: 30svh;
   }
   .zone-panel {
-    width: 100%;
-    max-width: 640px;
-    margin-inline: auto;
-    padding-bottom: 72px;
+    margin-inline: -5.5%;
+    padding-inline: 5.5%;
+    padding-top: 96px;
+    background: linear-gradient(to bottom, rgba(0, 35, 55, 0), rgba(0, 35, 55, 0.92) 96px, rgba(0, 35, 55, 0.96));
   }
 }
 @media (max-width: 1023px) and (orientation: landscape) {
@@ -106,23 +98,6 @@ body {
     font-size: 28px;
     line-height: 34px;
   }
-}
-
-/* Visor del modelo en vertical: fondo azul de lámina que aparece al empezar a leer,
-   con un borde inferior difuminado por donde entra el texto. */
-.visor-bg {
-  background-color: #002337;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-  background-size: 64px 64px;
-}
-.visor-bg::after {
-  content: '';
-  position: absolute;
-  inset-inline: 0;
-  top: 100%;
-  height: 40px;
-  background: linear-gradient(to bottom, #002337, rgba(0, 35, 55, 0));
 }
 
 .hero-photo {

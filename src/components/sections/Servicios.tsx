@@ -68,7 +68,7 @@ export default function Servicios() {
   return (
     <section id="servicios" className="zone-section relative z-10 min-h-[100svh]">
       <div className="wrap grid w-full lg:grid-cols-2 lsc:grid-cols-2">
-        <div data-shield className="zone-panel flex flex-col gap-4 pt-16 pb-36 lg:col-start-2 lg:py-32 vis:pt-0 lsc:col-start-2 lsc:gap-3 lsc:py-14">
+        <div data-shield className="zone-panel flex flex-col gap-4 pt-16 pb-36 lg:col-start-2 lg:py-32 lsc:col-start-2 lsc:gap-3 lsc:py-14">
           <Reveal>
             <SectionLabel n="04" dark>
               Servicios

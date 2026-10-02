@@ -44,13 +44,13 @@ export default function Hero() {
         </m.a>
       </div>
       <div className="wrap grid w-full lg:grid-cols-2 lsc:grid-cols-2">
-        <div data-shield className="zone-panel flex flex-col gap-7 pb-28 lg:pb-0 vis:gap-5 lsc:gap-3 lsc:pb-0 lsc:pt-16">
+        <div data-shield className="zone-panel flex flex-col gap-7 pb-28 lg:pb-0 lsc:gap-3 lsc:pb-0 lsc:pt-16">
           <m.div {...rise(0)}>
             <SectionLabel n="01" dark>
               Cuerpo
             </SectionLabel>
           </m.div>
-          <h1 className="text-[40px] font-extrabold leading-[44px] tracking-[-0.01em] sm:text-[56px] sm:leading-[60px] xl:text-[68px] xl:leading-[72px] vis:max-[400px]:text-[34px] vis:max-[400px]:leading-[38px] lsc:text-[30px] lsc:leading-[34px]">
+          <h1 className="text-[40px] font-extrabold leading-[44px] tracking-[-0.01em] sm:text-[56px] sm:leading-[60px] xl:text-[68px] xl:leading-[72px] lsc:text-[30px] lsc:leading-[34px]">
             {LINES.map((l, k) => (
               <span key={l} className="block overflow-hidden pb-1">
                 <m.span
@@ -100,7 +100,7 @@ export default function Hero() {
           <m.div
             {...rise(0.9)}
             onAnimationComplete={markHeroIntroDone}
-            className="lbl mt-4 flex flex-wrap gap-5 text-white/75 vis:mt-1 lsc:hidden"
+            className="lbl mt-4 flex flex-wrap gap-5 text-white/75 lsc:hidden"
           >
             <span>Kinesiología · Osteopatía · RPG</span>
             <span>Recoleta, CABA</span>

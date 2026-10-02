@@ -2,9 +2,9 @@
 export default function SpinePlaceholder() {
   const widths = [30, 32, 34, 36, 37, 38, 40, 42, 44, 45, 46, 48, 50, 51, 52, 54, 55, 56, 58, 62, 66, 69, 72, 76]
   return (
-    <div className="spine-placeholder flex h-full w-full items-center justify-end pr-[18%] vis:justify-center vis:pr-0 lsc:pr-[16%]">
-      {/* En el visor vertical y en horizontal hay menos alto: la columna se achica para entrar entera. */}
-      <div className="flex flex-col items-center gap-[5px] vis:scale-[0.72] lsc:scale-[0.7]">
+    <div className="spine-placeholder flex h-full w-full items-center justify-end pr-[18%] prt:items-start prt:justify-center prt:pr-0 prt:pt-[18svh] lsc:pr-[16%]">
+      {/* En horizontal hay menos alto: la columna se achica para entrar entera. */}
+      <div className="flex flex-col items-center gap-[5px] lsc:scale-[0.7]">
         {widths.map((w, i) => (
           <span
             key={i}
