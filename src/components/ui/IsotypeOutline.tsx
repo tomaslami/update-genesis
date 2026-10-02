@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, useReducedMotion } from 'framer-motion'
+import { m, useReducedMotion } from 'framer-motion'
 
 const PATHS = [
   'M78 18 L90 11 L110 11 L122 18 L110 25 L90 25 Z',
@@ -18,7 +18,7 @@ export default function IsotypeOutline({ className, stroke }: { className?: stri
     <svg aria-hidden="true" viewBox="0 0 200 200" className={className}>
       <g fill="none" stroke={stroke} strokeWidth={0.6} strokeLinejoin="round">
         {PATHS.map((d, i) => (
-          <motion.path
+          <m.path
             key={i}
             d={d}
             initial={reduce ? false : { pathLength: 0 }}

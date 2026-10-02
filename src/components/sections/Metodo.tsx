@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, useReducedMotion } from 'framer-motion'
+import { m, useReducedMotion } from 'framer-motion'
 import Reveal from '@/components/ui/Reveal'
 import SectionLabel from '@/components/ui/SectionLabel'
 
@@ -55,11 +55,11 @@ function Plate({ step, index }: { step: Step; index: number }) {
   return (
     <svg viewBox="0 0 280 200" className="h-auto w-full max-w-[320px]" role="img" aria-label={step.aria}>
       <line x1="120" y1="10" x2="120" y2="190" stroke="#002337" strokeWidth="1" strokeDasharray="4 5" opacity=".45" />
-      <motion.path d={step.spine} fill="none" stroke="#002337" strokeWidth="1.25" strokeLinecap="round" {...draw(0.1)} />
+      <m.path d={step.spine} fill="none" stroke="#002337" strokeWidth="1.25" strokeLinecap="round" {...draw(0.1)} />
       {VERTS.map(([y, w, h], i) =>
         step.marked === i ? (
           <g key={i}>
-            <motion.rect
+            <m.rect
               x={xs[i]}
               y={y}
               width={w}
@@ -75,7 +75,7 @@ function Plate({ step, index }: { step: Step; index: number }) {
             <circle className="pulse-ring" cx={xs[i] + w / 2} cy={y + h / 2} r="22" fill="none" stroke="#f28c38" strokeWidth="1.5" />
           </g>
         ) : (
-          <motion.rect
+          <m.rect
             key={i}
             x={xs[i]}
             y={y}
@@ -89,7 +89,7 @@ function Plate({ step, index }: { step: Step; index: number }) {
           />
         ),
       )}
-      <motion.path
+      <m.path
         d={`M${step.marked !== undefined ? 146 : 150} ${step.align ? 146 : step.marked !== undefined ? 106 : 66} h44`}
         stroke="#002337"
         strokeWidth="1"

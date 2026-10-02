@@ -7,7 +7,7 @@ export default function Footer() {
   return (
     <footer className="relative overflow-hidden bg-navy text-white">
       <IsotypeOutline stroke="#ffffff" className="pointer-events-none absolute -bottom-56 -right-32 h-[620px] w-[620px] opacity-[0.22]" />
-      <div className="wrap relative flex flex-col gap-12 pb-28 pt-20 md:pb-10">
+      <div className="wrap relative flex flex-col gap-12 pb-28 pt-20 lg:pb-10">
         <div className="flex flex-wrap justify-between gap-10">
           <Image src="/genesis-logo-blanco.webp" alt="Génesis" width={1612} height={346} className="h-11 w-auto self-start" />
           <nav aria-label="Pie de página" className="flex flex-col gap-3.5">

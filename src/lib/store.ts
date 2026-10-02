@@ -26,7 +26,6 @@ export const CONDITIONS: Condition[] = [
 
 type State = {
   active: SectionId
-  progress: number
   condition: string
   service: Service
   menuOpen: boolean
@@ -34,7 +33,6 @@ type State = {
 
 let state: State = {
   active: 'inicio',
-  progress: 0,
   condition: CONDITIONS[0].id,
   service: 'osteo',
   menuOpen: false,
@@ -54,6 +52,29 @@ export const store = {
     listeners.add(l)
     return () => {
       listeners.delete(l)
+    }
+  },
+}
+
+/**
+ * Progreso de lectura de la página (0–1). Cambia en cada cuadro de scroll, por
+ * eso va aparte del store: así no despierta a los componentes de React; quien lo
+ * necesita (la médula de la barra) se suscribe y escribe el estilo directamente.
+ */
+let progress = 0
+const progressListeners = new Set<(p: number) => void>()
+
+export const readingProgress = {
+  get: () => progress,
+  set(p: number) {
+    if (p === progress) return
+    progress = p
+    progressListeners.forEach((l) => l(p))
+  },
+  subscribe(l: (p: number) => void) {
+    progressListeners.add(l)
+    return () => {
+      progressListeners.delete(l)
     }
   },
 }

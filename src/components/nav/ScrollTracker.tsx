@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { SECTIONS, type SectionId } from '@/lib/site'
-import { store } from '@/lib/store'
+import { readingProgress, store } from '@/lib/store'
 
 /**
  * Un solo listener de scroll: sección activa y progreso de lectura. Las
@@ -29,7 +29,8 @@ export default function ScrollTracker() {
       const line = window.scrollY + window.innerHeight * 0.45
       let active: SectionId = 'inicio'
       for (const s of tops) if (s.top <= line) active = s.id
-      store.set({ active, progress: Math.min(1, Math.max(0, window.scrollY / max)) })
+      store.set({ active })
+      readingProgress.set(Math.min(1, Math.max(0, window.scrollY / max)))
     }
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(update)

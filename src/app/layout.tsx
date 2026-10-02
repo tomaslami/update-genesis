@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Nunito } from 'next/font/google'
-import { TagManagerProvider } from "@/components/tools/TagManager";
-import { GoogleAnalytics } from "@next/third-parties/google"
+import Analytics from "@/components/tools/Analytics";
+import MotionProvider from "@/components/tools/MotionProvider";
 
 
 export const metadata: Metadata = {
@@ -42,7 +42,8 @@ export const metadata: Metadata = {
   ]
 };
 
-const nunito = Nunito({ subsets: ['latin'], weight: ['300', '400', '500', '600', '700', '800'], variable: '--font-nunito' })
+// Nunito es variable: un solo archivo cubre todos los pesos (el sitio usa 400, 700 y 800).
+const nunito = Nunito({ subsets: ['latin'], variable: '--font-nunito' })
 
 export default function RootLayout({
   children,
@@ -53,10 +54,8 @@ export default function RootLayout({
     <>
       <html lang="es">
         <body className={`${nunito.variable} ${nunito.className}`}>
-          <GoogleAnalytics gaId="G-BNR9CJ65S6" />
-          <TagManagerProvider>
-            {children}
-          </TagManagerProvider>
+          <MotionProvider>{children}</MotionProvider>
+          <Analytics />
         </body>
       </html>
     </>

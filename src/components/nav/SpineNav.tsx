@@ -1,10 +1,10 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
-import { SECTIONS, sectionNumber } from '@/lib/site'
-import { store, useStore } from '@/lib/store'
-import { VertebraShape } from '@/components/ui/icons'
+import { useEffect, useRef, useState } from 'react'
+import { SECTIONS, WHATSAPP_URL, sectionNumber } from '@/lib/site'
+import { readingProgress, store, useStore } from '@/lib/store'
+import { VertebraShape, WhatsAppIcon } from '@/components/ui/icons'
 
 /**
  * La columna es toda la navegación: arriba el isotipo (vuelve al inicio),
@@ -12,11 +12,11 @@ import { VertebraShape } from '@/components/ui/icons'
  * de naranja con el scroll, las vértebras recorridas quedan alineadas
  * (rellenas) y la activa se enciende. Al entrar en una sección su nombre
  * aparece un momento; en desktop, al pasar el mouse, se despliega el índice.
- * En celular la misma columna se acuesta como una barra fina abajo.
+ * En celular la misma columna se acuesta como una barra fina abajo, que además
+ * lleva el acceso a WhatsApp (así nada flota encima del texto).
  */
 export default function SpineNav() {
   const active = useStore((s) => s.active)
-  const progress = useStore((s) => s.progress)
   const menuOpen = useStore((s) => s.menuOpen)
   const activeIdx = SECTIONS.findIndex((s) => s.id === active)
   const [flash, setFlash] = useState(true)
@@ -54,10 +54,7 @@ export default function SpineNav() {
           <span aria-hidden="true" className="my-1.5 h-px w-6 bg-navy/15" />
           <div className="relative flex flex-col items-center">
             <span aria-hidden="true" className="absolute bottom-3 top-3 left-1/2 w-px -translate-x-1/2 bg-navy/15">
-              <span
-                className="absolute inset-x-0 top-0 bg-orange transition-[height] duration-300"
-                style={{ height: `${progress * 100}%` }}
-              />
+              <ProgressFill axis="y" className="absolute inset-0 origin-top bg-orange transition-transform duration-300" />
             </span>
             {SECTIONS.map((s, i) => {
               const isActive = i === activeIdx
@@ -103,7 +100,7 @@ export default function SpineNav() {
         </div>
       </nav>
 
-      {/* Celular: la columna acostada, como barra fina abajo. */}
+      {/* Celular: la columna acostada, como barra fina abajo, con WhatsApp al final. */}
       <nav aria-label="Navegación" className="fixed inset-x-0 bottom-3 z-40 flex justify-center px-3 lg:hidden">
         <div className="relative flex items-center rounded-full bg-white/95 py-1 pl-1 pr-1 shadow-lg ring-1 ring-navy/5">
           <span
@@ -117,13 +114,13 @@ export default function SpineNav() {
           <a
             href="#inicio"
             aria-label="Génesis, volver al inicio"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+            className="flex h-11 w-10 shrink-0 items-center justify-center rounded-full"
           >
             <Image src="/isotipo.webp" alt="" width={74} height={56} className="h-auto w-7" />
           </a>
           <div className="relative flex items-center">
             <span aria-hidden="true" className="absolute inset-x-2 top-1/2 h-px -translate-y-1/2 bg-navy/15">
-              <span className="absolute inset-y-0 left-0 bg-orange" style={{ width: `${progress * 100}%` }} />
+              <ProgressFill axis="x" className="absolute inset-0 origin-left bg-orange" />
             </span>
             {SECTIONS.map((s, i) => (
               <a
@@ -131,7 +128,7 @@ export default function SpineNav() {
                 href={`#${s.id}`}
                 aria-current={i === activeIdx ? 'location' : undefined}
                 aria-label={`${sectionNumber(s.id)} — ${s.label}`}
-                className="flex h-11 w-[26px] items-center justify-center"
+                className="flex h-11 w-[22px] items-center justify-center min-[400px]:w-[25px]"
               >
                 <VertebraShape
                   width={16 + i * 1.6}
@@ -146,14 +143,42 @@ export default function SpineNav() {
             aria-expanded={menuOpen}
             aria-controls="menu"
             aria-label="Abrir menú"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-navy"
+            className="flex h-11 w-10 shrink-0 items-center justify-center rounded-full text-navy"
           >
             <MenuIcon />
           </button>
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Contáctanos por WhatsApp"
+            className="ml-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-whatsapp text-navy transition-colors duration-300 active:bg-whatsapp-hover"
+          >
+            <WhatsAppIcon size={22} />
+          </a>
         </div>
       </nav>
     </>
   )
+}
+
+/**
+ * Médula de la columna: se llena con el progreso de lectura. Se escala con
+ * `transform` (no cambia el layout) y se actualiza escribiendo el estilo
+ * directamente, sin re-renderizar la barra en cada cuadro de scroll.
+ */
+function ProgressFill({ axis, className }: { axis: 'x' | 'y'; className: string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = (p: number) => {
+      el.style.transform = axis === 'y' ? `scaleY(${p})` : `scaleX(${p})`
+    }
+    update(readingProgress.get())
+    return readingProgress.subscribe(update)
+  }, [axis])
+  return <span ref={ref} className={className} style={{ transform: axis === 'y' ? 'scaleY(0)' : 'scaleX(0)' }} />
 }
 
 function MenuIcon() {

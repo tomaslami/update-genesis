@@ -4,7 +4,7 @@ import SectionLabel from '@/components/ui/SectionLabel'
 
 function Note({ label, line, className }: { label: string; line: number; className: string }) {
   return (
-    <div aria-hidden="true" className={`absolute flex items-center ${className}`}>
+    <div aria-hidden="true" className={`absolute isolate flex items-center ${className}`}>
       <span className="pulse-dot h-3 w-3 rounded-full bg-orange" />
       <span className="h-px bg-white" style={{ width: line }} />
       <span className="lbl rounded-md bg-white px-2.5 py-1.5 text-navy">{label}</span>

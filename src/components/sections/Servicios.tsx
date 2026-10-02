@@ -1,6 +1,6 @@
 'use client'
 
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, m } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { store, useStore, type Service } from '@/lib/store'
 import Reveal, { EASE } from '@/components/ui/Reveal'
@@ -67,15 +67,15 @@ export default function Servicios() {
 
   return (
     <section id="servicios" className="zone-section relative z-10 min-h-[100svh]">
-      <div className="wrap grid w-full lg:grid-cols-2">
-        <div data-shield className="zone-panel flex flex-col gap-4 pt-16 pb-36 lg:col-start-2 lg:py-32">
+      <div className="wrap grid w-full lg:grid-cols-2 lsc:grid-cols-2">
+        <div data-shield className="zone-panel flex flex-col gap-4 pt-16 pb-36 lg:col-start-2 lg:py-32 vis:pt-0 lsc:col-start-2 lsc:gap-3 lsc:py-14">
           <Reveal>
             <SectionLabel n="04" dark>
               Servicios
             </SectionLabel>
           </Reveal>
           <Reveal delay={0.05}>
-            <h2 className="h2 mb-6">SERVICIOS DE REHABILITACIÓN</h2>
+            <h2 className="h2 mb-6 lsc:mb-2">SERVICIOS DE REHABILITACIÓN</h2>
           </Reveal>
           <div className="border-b border-white/20">
             {SERVICES.map((s, i) => {
@@ -87,7 +87,7 @@ export default function Servicios() {
                     aria-expanded={on}
                     aria-controls={`svc-${s.id}`}
                     onClick={() => store.set({ service: s.id })}
-                    className={`flex w-full items-center gap-5 border-t border-white/20 py-7 text-left transition-opacity duration-300 hover:opacity-100 ${
+                    className={`flex w-full items-center gap-5 border-t border-white/20 py-7 text-left transition-opacity duration-300 hover:opacity-100 lsc:py-4 ${
                       on ? 'opacity-100' : 'opacity-60'
                     }`}
                   >
@@ -103,7 +103,7 @@ export default function Servicios() {
                   </button>
                   <AnimatePresence initial={false}>
                     {on && (
-                      <motion.div
+                      <m.div
                         id={`svc-${s.id}`}
                         key="body"
                         initial={{ height: 0, opacity: 0 }}
@@ -113,7 +113,7 @@ export default function Servicios() {
                         className="overflow-hidden"
                       >
                         <div className="flex flex-col gap-3.5 pb-8 pl-12 text-[17px] leading-[27px] text-white/90">{s.body}</div>
-                      </motion.div>
+                      </m.div>
                     )}
                   </AnimatePresence>
                 </Reveal>

@@ -1,6 +1,6 @@
 'use client'
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import { CONTACT, SECTIONS, WHATSAPP_URL, sectionNumber } from '@/lib/site'
 import { store, useStore } from '@/lib/store'
@@ -32,7 +32,7 @@ function MenuPanel() {
   }, [])
 
   return (
-    <motion.div
+    <m.div
       id="menu"
       role="dialog"
       aria-modal="true"
@@ -61,7 +61,7 @@ function MenuPanel() {
             {SECTIONS.map((s, i) => {
               const isActive = s.id === active
               return (
-                <motion.li
+                <m.li
                   key={s.id}
                   initial={reduce ? false : { opacity: 0, y: 18 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -86,12 +86,12 @@ function MenuPanel() {
                       {s.label}
                     </span>
                   </a>
-                </motion.li>
+                </m.li>
               )
             })}
           </ol>
         </nav>
-        <motion.div
+        <m.div
           initial={reduce ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.5 }}
@@ -110,8 +110,8 @@ function MenuPanel() {
             <WhatsAppIcon />
             Contáctanos por WhatsApp
           </a>
-        </motion.div>
+        </m.div>
       </div>
-    </motion.div>
+    </m.div>
   )
 }

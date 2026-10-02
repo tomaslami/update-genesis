@@ -1,529 +1,149 @@
 'use client'
 
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Environment, Html, Lightformer, PerformanceMonitor } from '@react-three/drei'
-import { EffectComposer, N8AO, ToneMapping } from '@react-three/postprocessing'
-import { ToneMappingMode } from 'postprocessing'
-import { easing } from 'maath'
+import { Canvas, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
-import { buildAnatomy, type Region } from './geometry'
-import { focusFor, store, type Focus } from '@/lib/store'
-import type { SectionId } from '@/lib/site'
+import { useLayoutMode } from '@/lib/layout-mode'
+import { yieldToMain } from '@/lib/schedule'
+import Anatomy from './Anatomy'
+import { CAMERA, EXPOSURE, MAX_DPR } from './config'
+import { createRenderControl, type QualityTier } from './control'
+import { buildAnatomyAsync, type Anatomy as AnatomyData } from './geometry'
+import Governor from './governor'
+import { createNoteRegistry, NotesOverlay } from './notes'
+import Pipeline from './pipeline'
+import { captureStudio, type Studio as StudioEnv } from './studio'
 
-const ORANGE = new THREE.Color('#f28c38')
-// Hueso marfil, levemente frío: realista pero limpio.
-const BONE = new THREE.Color('#ece7de')
-// Zona de tratamiento: naranja claro y bien legible; el resto del hueso se apaga.
-const BONE_LIT = new THREE.Color('#f7a86b')
-const BONE_DIM = new THREE.Color('#7d8c99')
-/** Silueta tenue: el tono que toma el modelo mientras pasa por detrás de un texto. */
-const SILHOUETTE = new THREE.Color('#1f4560')
-const DISC = new THREE.Color('#9fc3db')
-
-type View = {
-  /** Rotación del modelo sobre su eje vertical. */
-  rotY: number
-  /** Altura (en unidades del modelo) hacia donde mira la cámara. */
-  y: number
-  /** Distancia de la cámara. */
-  dist: number
-  /** Opacidad de las costillas: la capa externa se retira para revelar la columna. */
-  ribs: number
-  lit: Partial<Record<Region | 'pelvis' | 'femur', number>>
-  chain?: number
-  joints?: number
-  plumb?: number
-  dimRest?: boolean
-}
-
-const VIEWS: Record<Focus, View> = {
-  hero: { rotY: 0, y: -0.95, dist: 17, ribs: 0.42, lit: {} },
-  full: { rotY: -0.7, y: -0.95, dist: 16.5, ribs: 0.14, lit: { C: 0.45, T: 0.45, L: 0.45, pelvis: 0.45, femur: 0.45 } },
-  cervlum: { rotY: 0.35, y: 0.15, dist: 12.5, ribs: 0.08, lit: { C: 1, L: 1 }, dimRest: true },
-  joints: { rotY: 0.5, y: -3.0, dist: 10.6, ribs: 0.04, lit: { pelvis: 0.55, femur: 0.55 }, joints: 1, dimRest: true },
-  posture: { rotY: -Math.PI / 2, y: -0.8, dist: 15.5, ribs: 0.06, lit: { C: 0.8, T: 0.8, L: 0.8 }, plumb: 1 },
-  rpg: { rotY: Math.PI * 0.9, y: -0.95, dist: 16.5, ribs: 0.1, lit: {}, chain: 1 },
-  osteo: { rotY: -0.45, y: -2.9, dist: 10.4, ribs: 0.04, lit: { pelvis: 1 }, joints: 1, dimRest: true },
-}
-
-/** Secciones de la zona anatómica y el lado de la pantalla donde va el modelo (1 derecha, -1 izquierda). */
-const ZONE: SectionId[] = ['inicio', 'kinesiologia', 'abordaje', 'servicios']
-const SIDES = [1, -1, 1, -1]
-const zoneFocus = (i: number): Focus => focusFor({ ...store.get(), active: ZONE[i] })
-
-type Note = { anchor: string; lines: string[]; dir: 'left' | 'right'; focus: Focus; delay?: number }
-
-const NOTES: Note[] = [
-  { focus: 'hero', anchor: 'c7Left', lines: ['Cervical · C7'], dir: 'left', delay: 1.6 },
-  { focus: 'hero', anchor: 'l45Right', lines: ['L4 · L5'], dir: 'right', delay: 2.1 },
-  { focus: 'hero', anchor: 'siLeft', lines: ['Articulación', 'sacroilíaca'], dir: 'left', delay: 2.6 },
-  { focus: 'full', anchor: 't6Right', lines: ['Abordaje', 'global'], dir: 'right' },
-  { focus: 'cervlum', anchor: 'c3Left', lines: ['Cervical'], dir: 'left' },
-  { focus: 'cervlum', anchor: 'l3Right', lines: ['Lumbar'], dir: 'right' },
-  { focus: 'joints', anchor: 'siRight', lines: ['Sacroilíaca'], dir: 'right' },
-  { focus: 'joints', anchor: 'hipLeft', lines: ['Cadera'], dir: 'left' },
-  { focus: 'posture', anchor: 't6Back', lines: ['Eje', 'postural'], dir: 'right' },
-  { focus: 'rpg', anchor: 'chainLeft', lines: ['Cadena', 'posterior'], dir: 'right' },
-  { focus: 'osteo', anchor: 'siRight', lines: ['Articulación', 'sacroilíaca'], dir: 'right' },
-  { focus: 'osteo', anchor: 'hipLeft', lines: ['Cadera'], dir: 'left' },
-]
-
-function boneMaterial() {
-  return new THREE.MeshStandardMaterial({
-    color: BONE.clone(),
-    roughness: 0.5,
-    metalness: 0,
-    emissive: ORANGE.clone(),
-    emissiveIntensity: 0,
-    // Siempre transparente (opacidad 1 en reposo): así atenuarse a silueta no
-    // obliga a recompilar el shader en medio del scroll.
-    transparent: true,
-    opacity: 1,
-  })
-}
+let anatomy: Promise<AnatomyData> | null = null
 
 /**
- * Posiciones de la página (en coordenadas del documento) que necesita la
- * escena. Se miden una vez y solo se vuelven a medir si cambia el tamaño de
- * la página: leer el layout en cada cuadro trabaría el scroll.
+ * Construye el modelo (en tareas cortas) una sola vez por página. Se puede
+ * llamar antes de montar la escena para tenerlo listo cuando haga falta.
  */
-type Layout = {
-  zoneTop: number
-  zoneHeight: number
-  centers: number[]
-  texts: { l: number; r: number; t: number; b: number }[]
+export function preloadAnatomy() {
+  anatomy ??= buildAnatomyAsync()
+  return anatomy
 }
 
-function measureLayout(): Layout | null {
-  const sy = window.scrollY
-  const secs = ZONE.map((id) => document.getElementById(id))
-  if (secs.some((el) => !el)) return null
-  const centers = secs.map((el) => {
-    const r = el!.getBoundingClientRect()
-    return r.top + sy + r.height / 2
-  })
-  const zone = secs[0]!.parentElement!.getBoundingClientRect()
-  // Bloques de texto reales (títulos, párrafos, listas), sin el relleno del panel.
-  const texts: Layout['texts'] = []
-  document.querySelectorAll<HTMLElement>('[data-shield]').forEach((panel) => {
-    for (const child of Array.from(panel.children)) {
-      const r = child.getBoundingClientRect()
-      if (r.width > 0 && r.height > 0) texts.push({ l: r.left, r: r.right, t: r.top + sy, b: r.bottom + sy })
-    }
-  })
-  return { zoneTop: zone.top + sy, zoneHeight: zone.height, centers, texts }
-}
-
-function Anatomy({ reduced }: { reduced: boolean }) {
-  const data = useMemo(() => buildAnatomy(), [])
-  const { camera, size } = useThree()
-
-  const mats = useMemo(
-    () => ({
-      C: boneMaterial(),
-      T: boneMaterial(),
-      L: boneMaterial(),
-      pelvis: boneMaterial(),
-      femur: boneMaterial(),
-      disc: new THREE.MeshStandardMaterial({ color: '#9fc3db', roughness: 0.3, transparent: true, opacity: 0.9 }),
-      ribs: new THREE.MeshStandardMaterial({
-        color: '#ece7de',
-        roughness: 0.45,
-        transparent: true,
-        opacity: 0,
-        depthWrite: false,
-      }),
-      cartilage: new THREE.MeshStandardMaterial({
-        color: '#b9d5e8',
-        roughness: 0.3,
-        transparent: true,
-        opacity: 0,
-        depthWrite: false,
-      }),
-      chain: new THREE.MeshBasicMaterial({ color: ORANGE, transparent: true, opacity: 0, depthWrite: false }),
-      joint: new THREE.MeshBasicMaterial({ color: ORANGE, transparent: true, opacity: 0, depthWrite: false }),
-      halo: new THREE.MeshBasicMaterial({
-        color: ORANGE,
-        transparent: true,
-        opacity: 0,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      }),
-      plumb: new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0, depthWrite: false }),
-      flow: new THREE.MeshBasicMaterial({ color: '#ffd2ad', transparent: true, opacity: 0, depthWrite: false }),
-    }),
-    [],
-  )
-
-  const root = useRef<THREE.Group>(null!)
-  const spin = useRef<THREE.Group>(null!)
-  const vertRefs = useRef<(THREE.Mesh | null)[]>([])
-  const haloRefs = useRef<(THREE.Mesh | null)[]>([])
-  const flowRefs = useRef<(THREE.Mesh | null)[]>([])
-  const pointer = useRef({ x: 0, y: 0 })
-  const start = useRef<number | null>(null)
-  const tmp = useMemo(() => ({ v: new THREE.Vector3(), c: new THREE.Color() }), [])
-  const corners = useMemo(() => {
-    const { top, bottom } = data.bounds
-    const pts: THREE.Vector3[] = []
-    // Columna y pelvis (las costillas, casi transparentes, no cuentan como "tapar").
-    for (const x of [-1.25, 1.25]) for (const y of [bottom, top]) for (const z of [-0.9, 0.9]) pts.push(new THREE.Vector3(x, y, z))
-    return pts
-  }, [data])
-  // Anotaciones: se montan un cuadro después del modelo (evita una carrera al
-  // montar el primer <Html>) y solo se muestran con el modelo quieto.
-  const [notesReady, setNotesReady] = useState(false)
-  const [noteFocus, setNoteFocus] = useState<Focus | null>(null)
-  const noteRef = useRef<Focus | null>(null)
-  // Cuánto se apaga el modelo (0 encendido, 1 silueta) y si hay un texto por delante.
-  const fade = useRef({ k: 0, behind: false })
-  const layout = useRef<Layout | null>(null)
-
+function useAnatomyData() {
+  const [data, setData] = useState<AnatomyData | null>(null)
   useEffect(() => {
-    let raf = 0
-    const remeasure = () => {
-      cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(() => {
-        layout.current = measureLayout()
-      })
-    }
-    remeasure()
-    const ro = new ResizeObserver(remeasure)
-    ro.observe(document.body)
-    window.addEventListener('resize', remeasure)
-    document.fonts?.ready.then(remeasure)
-    // Las apariciones (Reveal) desplazan algo los textos al entrar: se re-mide al rato.
-    const late = window.setTimeout(remeasure, 1500)
+    let alive = true
+    void preloadAnatomy().then((d) => alive && setData(d))
     return () => {
-      cancelAnimationFrame(raf)
-      ro.disconnect()
-      window.removeEventListener('resize', remeasure)
-      window.clearTimeout(late)
+      alive = false
     }
   }, [])
-
-  useEffect(() => {
-    const onMove = (e: PointerEvent) => {
-      pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1
-      pointer.current.y = (e.clientY / window.innerHeight) * 2 - 1
-    }
-    window.addEventListener('pointermove', onMove, { passive: true })
-    return () => {
-      window.removeEventListener('pointermove', onMove)
-    }
-  }, [])
-
-  useEffect(
-    () => () => {
-      Object.values(mats).forEach((m) => m.dispose())
-    },
-    [mats],
-  )
-
-  const mobile = size.width < 1024
-
-  useFrame((state, delta) => {
-    const dt = Math.min(delta, 0.1)
-    const t = state.clock.elapsedTime
-    if (start.current === null) start.current = t
-    if (!notesReady) setNotesReady(true)
-    const since = t - start.current
-
-    // Entrada: las vértebras se apilan de arriba hacia abajo y se alinean.
-    data.vertebrae.forEach((v, i) => {
-      const m = vertRefs.current[i]
-      if (!m) return
-      const p = reduced ? 1 : THREE.MathUtils.clamp((since - i * 0.045) / 0.9, 0, 1)
-      const e = 1 - Math.pow(1 - p, 3)
-      m.position.set(0, v.y + (1 - e) * 0.9, v.z + (1 - e) * 0.25)
-      const sc = 0.4 + 0.6 * e
-      m.scale.set(v.scale[0] * sc, v.scale[1] * sc, v.scale[2] * sc)
-    })
-
-    // Posición continua del scroll dentro de la zona: 0 = Hero … 3 = Servicios.
-    // El modelo se queda quieto con cada sección centrada y pasa de una pose a
-    // la siguiente en el tramo intermedio, siempre atado al scroll.
-    const L = layout.current
-    const sy = window.scrollY
-    const vh = window.innerHeight
-    const vc = sy + vh / 2
-    const centers = L?.centers ?? []
-    let f = 0
-    if (centers.length === ZONE.length) {
-      const last = ZONE.length - 1
-      if (vc >= centers[last]) f = last
-      else
-        for (let i = 0; i < last; i++)
-          if (vc >= centers[i] && vc < centers[i + 1]) {
-            f = i + (vc - centers[i]) / (centers[i + 1] - centers[i])
-            break
-          }
-    }
-    const i0 = Math.min(Math.floor(f), ZONE.length - 2)
-    const raw = THREE.MathUtils.clamp((f - i0 - 0.3) / 0.4, 0, 1)
-    const e = reduced ? Math.round(raw) : raw * raw * (3 - 2 * raw)
-    const fa = zoneFocus(i0)
-    const fb = zoneFocus(i0 + 1)
-    const A = VIEWS[fa]
-    const B = VIEWS[fb]
-    const mix = (a: number, b: number) => a + (b - a) * e
-
-    // Cámara y lado de la pantalla.
-    const fov = (camera as THREE.PerspectiveCamera).fov
-    const dist = mix(A.dist, B.dist) * (mobile ? 1.42 : 1)
-    const visibleH = 2 * dist * Math.tan(THREE.MathUtils.degToRad(fov / 2))
-    const visibleW = visibleH * (size.width / size.height)
-    const offsetX = mobile ? 0 : mix(SIDES[i0], SIDES[i0 + 1]) * visibleW * 0.23
-    const camY = mix(A.y, B.y) - (mobile ? visibleH * 0.15 : 0)
-    const k = reduced ? 0.0001 : 0.16
-    easing.damp(root.current.position, 'x', offsetX, k, dt)
-    easing.damp3(camera.position, [0, camY, dist], k, dt)
-    camera.lookAt(0, camera.position.y, 0)
-
-    // Rotación: pose de la zona, oscilación lenta en el hero y leve paralaje del mouse.
-    const heroW = i0 === 0 ? 1 - e : 0
-    const sway = reduced ? 0 : Math.sin(t * 0.22) * 0.5 * heroW
-    const px = reduced ? 0 : pointer.current.x * 0.14
-    const py = reduced ? 0 : pointer.current.y * 0.05
-    easing.damp(spin.current.rotation, 'y', mix(A.rotY, B.rotY) + sway + px, reduced ? 0.0001 : 0.22, dt)
-    easing.damp(spin.current.rotation, 'x', py, 0.3, dt)
-
-    // Iluminación de zonas: el naranja marca dónde actuamos.
-    // Opción A: si el modelo cruza por detrás de un texto, se apaga a una
-    // silueta azul tenue para que el texto quede nítido; al llegar, se enciende.
-    easing.damp(fade.current, 'k', fade.current.behind ? 1 : 0, reduced ? 0.0001 : 0.25, dt)
-    const off = fade.current.k
-    const dim = mix(A.dimRest ? 1 : 0, B.dimRest ? 1 : 0)
-    ;(['C', 'T', 'L', 'pelvis', 'femur'] as const).forEach((key) => {
-      const lit = mix(A.lit[key] ?? 0, B.lit[key] ?? 0)
-      const m = mats[key]
-      easing.damp(m, 'emissiveIntensity', lit * 0.55 * (1 - off), 0.2, dt)
-      tmp.c.copy(BONE).lerp(BONE_DIM, dim).lerp(BONE_LIT, Math.min(1, lit * 1.4)).lerp(SILHOUETTE, off * 0.85)
-      easing.dampC(m.color, tmp.c, 0.2, dt)
-      // Silueta: sin reflejos de estudio y semitransparente mientras cruza.
-      m.envMapIntensity = 1 - off * 0.9
-      m.opacity = 1 - off * 0.62
-    })
-    const ribsIn = reduced ? 1 : THREE.MathUtils.clamp((since - 1.2) / 1.2, 0, 1)
-    easing.damp(mats.ribs, 'opacity', mix(A.ribs, B.ribs) * ribsIn * (1 - off * 0.7), 0.2, dt)
-    tmp.c.copy(DISC).lerp(SILHOUETTE, off * 0.85)
-    easing.dampC(mats.disc.color, tmp.c, 0.2, dt)
-    mats.ribs.visible = mats.ribs.opacity > 0.01
-    mats.cartilage.opacity = mats.ribs.opacity * 0.8
-    mats.cartilage.visible = mats.ribs.visible
-    const chain = mix(A.chain ?? 0, B.chain ?? 0)
-    const joints = mix(A.joints ?? 0, B.joints ?? 0)
-    easing.damp(mats.chain, 'opacity', chain * 0.9 * (1 - off * 0.8), 0.2, dt)
-    easing.damp(mats.flow, 'opacity', chain * (1 - off * 0.8), 0.2, dt)
-    easing.damp(mats.joint, 'opacity', joints * (1 - off * 0.8), 0.2, dt)
-    easing.damp(mats.plumb, 'opacity', mix(A.plumb ?? 0, B.plumb ?? 0) * 0.55, 0.2, dt)
-
-    // Pulso en articulaciones y flujo sobre la cadena posterior.
-    const pulse = reduced ? 0.5 : (t * 0.6) % 1
-    haloRefs.current.forEach((h) => h?.scale.setScalar(1 + pulse * 1.6))
-    mats.halo.opacity = mats.joint.opacity * (1 - pulse) * 0.55
-    flowRefs.current.forEach((fl, i) => {
-      if (!fl) return
-      const curve = data.chain[i % 2]
-      const u = reduced ? ((Math.floor(i / 2) + 0.5) / 5) % 1 : (t * 0.08 + Math.floor(i / 2) / 5) % 1
-      fl.position.copy(curve.getPointAt(u))
-    })
-
-    // Anotaciones: solo con el modelo en reposo, para que no crucen la pantalla.
-    const nf = e < 0.06 ? fa : e > 0.94 ? fb : null
-    if (nf !== noteRef.current) {
-      noteRef.current = nf
-      setNoteFocus(nf)
-    }
-
-    // ¿Hay un texto delante del modelo? Todo con posiciones ya medidas: sin leer el layout.
-    let behind = false
-    if (!mobile && L) {
-      // El lienzo queda pegado arriba durante la zona y sube con ella al terminar.
-      const canvasTop = Math.min(0, L.zoneTop + L.zoneHeight - sy - vh)
-      let x0 = Infinity
-      let x1 = -Infinity
-      let y0 = Infinity
-      let y1 = -Infinity
-      spin.current.updateWorldMatrix(true, false)
-      for (const p of corners) {
-        tmp.v.copy(p).applyMatrix4(spin.current.matrixWorld).project(camera)
-        const sx = ((tmp.v.x + 1) / 2) * size.width
-        const sy2 = canvasTop + ((1 - tmp.v.y) / 2) * size.height
-        x0 = Math.min(x0, sx)
-        x1 = Math.max(x1, sx)
-        y0 = Math.min(y0, sy2)
-        y1 = Math.max(y1, sy2)
-      }
-      const pad = (x1 - x0) * 0.1
-      x0 += pad
-      x1 -= pad
-      for (const r of L.texts) {
-        const t = r.t - sy
-        const b = r.b - sy
-        if (b < 0 || t > vh) continue
-        if (r.r > x0 && r.l < x1 && b > y0 && t < y1) {
-          behind = true
-          break
-        }
-      }
-    }
-    fade.current.behind = behind
-  })
-
-  return (
-    <group ref={root}>
-      <group ref={spin}>
-        {data.vertebrae.map((v, i) => (
-          <mesh
-            key={i}
-            ref={(m) => {
-              vertRefs.current[i] = m
-            }}
-            geometry={v.geometry}
-            material={mats[v.region]}
-            position={[0, v.y, v.z]}
-          />
-        ))}
-        <mesh geometry={data.discs} material={mats.disc} />
-        <mesh geometry={data.ribs} material={mats.ribs} renderOrder={2} />
-        <mesh geometry={data.cartilage} material={mats.cartilage} renderOrder={2} />
-        <mesh
-          geometry={data.sacrum.geometry}
-          material={mats.pelvis}
-          matrixAutoUpdate={false}
-          matrix={data.sacrum.matrix}
-        />
-        {data.wings.map((w, i) => (
-          <mesh key={i} geometry={w.geometry} material={mats.pelvis} matrixAutoUpdate={false} matrix={w.matrix} />
-        ))}
-        <mesh geometry={data.femurs} material={mats.femur} />
-        <mesh geometry={data.chainGeometry} material={mats.chain} renderOrder={3} />
-        {Array.from({ length: 10 }).map((_, i) => (
-          <mesh
-            key={i}
-            ref={(m) => {
-              flowRefs.current[i] = m
-            }}
-            material={mats.flow}
-            renderOrder={4}
-          >
-            <sphereGeometry args={[0.055, 12, 8]} />
-          </mesh>
-        ))}
-        {data.joints.map((p, i) => (
-          <group key={i} position={p}>
-            <mesh material={mats.joint} renderOrder={4}>
-              <sphereGeometry args={[0.09, 16, 12]} />
-            </mesh>
-            <mesh
-              ref={(m) => {
-                haloRefs.current[i] = m
-              }}
-              material={mats.halo}
-              renderOrder={4}
-            >
-              <sphereGeometry args={[0.12, 16, 12]} />
-            </mesh>
-          </group>
-        ))}
-        <mesh material={mats.plumb} position={[0, -1.3, 0]}>
-          <cylinderGeometry args={[0.008, 0.008, 9, 6]} />
-        </mesh>
-        {notesReady && <Notes anchors={data.anchors} focus={noteFocus} reduced={reduced} />}
-      </group>
-    </group>
-  )
+  return data
 }
 
-function Notes({
-  anchors,
-  focus,
-  reduced,
-}: {
-  anchors: Record<string, THREE.Vector3>
-  focus: Focus | null
-  reduced: boolean
-}) {
+/** Estudio: mapa de entorno generado en código (en dos tareas cortas) y las cuatro luces de apoyo. */
+function Studio({ onReady }: { onReady: () => void }) {
+  const { gl, scene } = useThree()
+  const ready = useRef(onReady)
+  ready.current = onReady
+  useEffect(() => {
+    let alive = true
+    let env: StudioEnv | null = null
+    void (async () => {
+      await yieldToMain()
+      if (!alive) return
+      env = captureStudio(gl, scene)
+      await yieldToMain()
+      if (!alive) return
+      env.prefilter()
+      ready.current()
+    })()
+    return () => {
+      alive = false
+      env?.dispose()
+    }
+  }, [gl, scene])
   return (
     <>
-      {NOTES.map((n, i) => (
-        <Html
-          key={i}
-          position={anchors[n.anchor]}
-          zIndexRange={[20, 0]}
-          style={{ pointerEvents: 'none' }}
-        >
-          <div
-            className={`anat-note anat-note--${n.dir}`}
-            data-on={n.focus === focus}
-            style={{ transitionDelay: n.focus === focus && n.delay && !reduced ? `${n.delay}s` : '0s' }}
-          >
-            <span className="anat-note__dot" />
-            <span className="anat-note__line" />
-            <span className="anat-note__label">
-              {n.lines.map((l) => (
-                <span key={l}>{l}</span>
-              ))}
-            </span>
-          </div>
-        </Html>
-      ))}
-    </>
-  )
-}
-
-export default function Scene({ running, reduced }: { running: boolean; reduced: boolean }) {
-  // Oclusión ambiental solo en pantallas grandes: en celulares prioriza fluidez.
-  const [desktop, setDesktop] = useState(false)
-  // Calidad adaptativa: si el dispositivo no sostiene la fluidez, baja la
-  // resolución y apaga la oclusión; si se recupera, la vuelve a subir.
-  const [hq, setHq] = useState(true)
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
-    setDesktop(mq.matches)
-    const on = () => setDesktop(mq.matches)
-    mq.addEventListener('change', on)
-    return () => mq.removeEventListener('change', on)
-  }, [])
-
-  return (
-    <Canvas
-      dpr={hq ? [1, desktop ? 1.5 : 1.3] : 1}
-      frameloop={running ? 'always' : 'never'}
-      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-      onCreated={({ gl }) => {
-        gl.toneMapping = THREE.AgXToneMapping
-        gl.toneMappingExposure = 1.25
-      }}
-      camera={{ fov: 32, position: [0, -0.95, 17], near: 0.1, far: 80 }}
-      style={{ width: '100%', height: '100%' }}
-    >
-      <PerformanceMonitor
-        onDecline={() => setHq(false)}
-        onIncline={() => setHq(true)}
-        onFallback={() => setHq(false)}
-        flipflops={3}
-      />
-      {/* Estudio: luces de caja suaves generadas una sola vez (sin descargar mapas HDR). */}
-      <Environment resolution={128} environmentIntensity={0.75}>
-        <Lightformer form="rect" intensity={3} color="#ffffff" position={[0, 6, 6]} scale={[10, 4, 1]} />
-        <Lightformer form="rect" intensity={2} color="#8fc2ff" position={[-8, 1, -4]} rotation-y={Math.PI / 2} scale={[8, 10, 1]} />
-        <Lightformer form="rect" intensity={1.2} color="#ffd2ad" position={[8, -2, -2]} rotation-y={-Math.PI / 2} scale={[6, 8, 1]} />
-        <Lightformer form="circle" intensity={1.5} color="#ffffff" position={[0, -6, 4]} scale={4} />
-      </Environment>
       <hemisphereLight args={['#d6e8f7', '#002337', 0.35]} />
       <directionalLight position={[4, 6, 9]} intensity={1.6} />
       <directionalLight position={[-7, 3, -8]} intensity={2.2} color="#6fb3ff" />
       <directionalLight position={[6, -4, -6]} intensity={0.6} color="#f2b27a" />
-      <Anatomy reduced={reduced} />
-      {desktop && hq && (
-        <EffectComposer multisampling={4}>
-          <N8AO aoRadius={0.3} distanceFalloff={0.6} intensity={1.5} halfRes quality="performance" />
-          <ToneMapping mode={ToneMappingMode.AGX} />
-        </EffectComposer>
-      )}
-    </Canvas>
+    </>
+  )
+}
+
+const GL_COMPOSER = { antialias: false, alpha: true, powerPreference: 'default' } as const
+const GL_DIRECT = { antialias: true, alpha: true, powerPreference: 'default' } as const
+
+type Props = {
+  /** La zona anatómica está en pantalla (si no, no se dibuja nada). */
+  running: boolean
+  reduced: boolean
+  /** El primer cuadro ya se dibujó: el modelo empieza a mostrarse. */
+  onReady: () => void
+}
+
+/**
+ * Lienzo del modelo. La preparación va por etapas, cada una en su propia tarea
+ * corta: contexto WebGL → entorno → prefiltrado → modelo → shaders (en
+ * paralelo) → primer cuadro invisible → fundido de entrada.
+ */
+export default function Scene({ running, reduced, onReady }: Props) {
+  const mode = useLayoutMode()
+  const data = useAnatomyData()
+  const [envReady, setEnvReady] = useState(false)
+  const [warm, setWarm] = useState(false)
+  const [tier, setTier] = useState<QualityTier>(0)
+  const [composerFailed, setComposerFailed] = useState(false)
+  const notes = useMemo(createNoteRegistry, [])
+  const control = useMemo(createRenderControl, [])
+
+  // Escritorio: compositor HDR con MSAA propio y oclusión ambiental (el contexto no necesita antialias).
+  // Celular y tablet: render directo con el antialias del contexto.
+  const composer = mode === 'desktop' && !composerFailed
+
+  // Si cambia el tipo de pantalla o falla el compositor, el lienzo se rehace y vuelve a prepararse.
+  useEffect(() => {
+    setEnvReady(false)
+    setWarm(false)
+  }, [composer])
+  useEffect(() => {
+    if (warm) onReady()
+  }, [warm, onReady])
+
+  return (
+    <>
+      <Canvas
+        key={composer ? 'composer' : 'direct'}
+        dpr={tier >= 1 ? 1 : [1, mode === 'desktop' ? MAX_DPR.desktop : MAX_DPR.mobile]}
+        frameloop={running && warm ? 'demand' : 'never'}
+        gl={composer ? GL_COMPOSER : GL_DIRECT}
+        onCreated={({ gl }) => {
+          gl.toneMapping = THREE.AgXToneMapping
+          gl.toneMappingExposure = EXPOSURE
+        }}
+        camera={CAMERA}
+        style={{
+          width: '100%',
+          height: '100%',
+          // Entra con un fundido: el modelo aparece cuando ya está listo, no a tirones.
+          opacity: warm ? 1 : 0,
+          transition: reduced ? 'none' : 'opacity 900ms cubic-bezier(0.22, 1, 0.36, 1)',
+        }}
+      >
+        <Governor control={control} tier={tier} onTier={setTier} />
+        <Studio onReady={() => setEnvReady(true)} />
+        {data && envReady && (
+          <>
+            <Anatomy data={data} mode={mode} reduced={reduced} notes={notes} control={control} />
+            <Pipeline
+              composer={composer}
+              tier={tier}
+              control={control}
+              onWarm={() => setWarm(true)}
+              onComposerError={() => setComposerFailed(true)}
+            />
+          </>
+        )}
+      </Canvas>
+      <NotesOverlay registry={notes} reduced={reduced} />
+    </>
   )
 }
