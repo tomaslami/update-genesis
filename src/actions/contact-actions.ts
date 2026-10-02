@@ -2,8 +2,6 @@
 import { Resend } from 'resend'
 import axios from 'axios'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 export async function handleSubmit(formData: FormData) {
   try {
     console.log('API Key exists:', !!process.env.RESEND_API_KEY)
@@ -44,6 +42,7 @@ export async function handleSubmit(formData: FormData) {
 
       // Fallback to Resend if axios request fails
       console.log('Attempting to send via Resend as fallback')
+      const resend = new Resend(process.env.RESEND_API_KEY)
       const { data, error } = await resend.emails.send({
         from: 'info@consultoriogenesis.com.ar',
         to: ['matiasgabrielroldan@gmail.com'],
