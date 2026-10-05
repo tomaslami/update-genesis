@@ -96,18 +96,18 @@ Medido en Chrome con GPU real (Intel Arc 140V), canvas 1920×1200. "Celular" es
 ## Responsive
 
 Tres modos, definidos una sola vez en `src/lib/layout-mode.ts` y usados por el CSS
-(variantes `vis:` y `lsc:` de Tailwind) y por la escena:
+(variantes `prt:` y `lsc:` de Tailwind) y por la escena:
 
 | Modo | Cuándo | Cómo se ve |
 |---|---|---|
 | `desktop` | ≥ 1024 px de ancho | Sin cambios: modelo a un lado, texto al otro. |
-| `portrait` (`vis:`) | angosto y vertical (celular, tablet) | **Visor fijo arriba** (`--visor`, 46 % del alto; 42 % en pantallas bajas) con el modelo centrado. El texto se lee debajo y pasa por detrás del visor: nunca tapa el modelo. En el hero el visor es transparente (se ve la foto) y se vuelve opaco al empezar a leer. |
+| `portrait` (`prt:`) | angosto y vertical (celular, tablet) | **Modelo al costado**: asoma por un borde, grande y recortado, y alterna de lado en cada sección (`SIDES`). El titular (`.zone-head`) va junto a él, del lado libre; el cuerpo del texto va en un panel opaco debajo (`--stage`, 54 % del alto) que sube sobre el modelo. Las etiquetas del modelo apuntan hacia el lado libre. Encuadre por pose en `PORTRAIT` (`config.ts`). |
 | `landscape` (`lsc:`) | angosto y horizontal | El concepto de escritorio a escala: modelo a un lado, texto al otro, alternando. |
 
 - **WhatsApp vive dentro de la barra vertebral** en pantallas < 1024 px (siempre a
   un toque y sin tapar texto); el botón flotante queda para escritorio.
-- En vertical la "línea de lectura" que decide la pose es el centro del área de
-  texto bajo el visor.
+- En vertical la pose cambia cuando el escenario de la sección (titular + modelo)
+  llega a la pantalla (`layout.ts`), no al centro de la sección.
 
 ## Decisiones para revisar
 

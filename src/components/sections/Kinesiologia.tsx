@@ -12,14 +12,16 @@ export default function Kinesiologia() {
     <section id="kinesiologia" className="zone-section relative z-10 min-h-[100svh]">
       <div className="wrap grid w-full lg:grid-cols-2 lsc:grid-cols-2">
         <div data-shield className="zone-panel flex flex-col gap-6 pt-16 pb-36 lg:col-start-2 lg:py-32 lsc:col-start-2 lsc:gap-3 lsc:py-14">
-          <Reveal>
-            <SectionLabel n="02" dark>
-              Kinesiología
-            </SectionLabel>
-          </Reveal>
-          <Reveal delay={0.05}>
-            <h2 className="h2">¿A QUÉ SE DEDICA GÉNESIS?</h2>
-          </Reveal>
+          <div className="zone-head">
+            <Reveal>
+              <SectionLabel n="02" dark>
+                Kinesiología
+              </SectionLabel>
+            </Reveal>
+            <Reveal delay={0.05}>
+              <h2 className="h2">¿A QUÉ SE DEDICA GÉNESIS?</h2>
+            </Reveal>
+          </div>
           <Reveal delay={0.1}>
             <p className="text-[22px] font-bold leading-8 sm:text-2xl sm:leading-[34px] lsc:text-lg lsc:leading-6">
               Nos orientamos a la prevención, evaluación y tratamiento de alteraciones del movimiento y la función

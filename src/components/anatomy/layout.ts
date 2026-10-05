@@ -1,4 +1,5 @@
 import { useEffect, useRef, type MutableRefObject } from 'react'
+import { LAYOUT_QUERIES } from '@/lib/layout-mode'
 import { ZONE } from './config'
 
 /**
@@ -17,9 +18,12 @@ export function measureLayout(): Layout | null {
   const sy = window.scrollY
   const secs = ZONE.map((id) => document.getElementById(id))
   if (secs.some((el) => !el)) return null
+  // En vertical el titular y el modelo están en la parte de arriba de cada sección (el cuerpo del texto
+  // va en un panel debajo): la pose cambia cuando esa parte llega a la pantalla, no al centro de la sección.
+  const portrait = window.matchMedia(LAYOUT_QUERIES.portrait).matches
   const centers = secs.map((el) => {
     const r = el!.getBoundingClientRect()
-    return r.top + sy + r.height / 2
+    return r.top + sy + (portrait ? Math.min(window.innerHeight * 0.55, r.height / 2) : r.height / 2)
   })
   const zone = secs[0]!.parentElement!.getBoundingClientRect()
   // Bloques de texto reales (títulos, párrafos, listas), sin el relleno del panel.

@@ -13,14 +13,16 @@ export default function Abordaje() {
     <section id="abordaje" className="zone-section relative z-10 min-h-[100svh]">
       <div className="wrap grid w-full lg:grid-cols-2 lsc:grid-cols-2">
         <div data-shield className="zone-panel flex flex-col gap-4 pt-16 pb-36 lg:py-32 lsc:gap-3 lsc:py-14">
-          <Reveal>
-            <SectionLabel n="03" dark>
-              Abordaje
-            </SectionLabel>
-          </Reveal>
-          <Reveal delay={0.05}>
-            <h2 className="h2">¿QUÉ PODEMOS ABORDAR?</h2>
-          </Reveal>
+          <div className="zone-head">
+            <Reveal>
+              <SectionLabel n="03" dark>
+                Abordaje
+              </SectionLabel>
+            </Reveal>
+            <Reveal delay={0.05}>
+              <h2 className="h2">¿QUÉ PODEMOS ABORDAR?</h2>
+            </Reveal>
+          </div>
           <Reveal delay={0.1}>
             <p className="lbl mb-2 text-white/70 lg:mb-4">Toca cada ítem para ver la zona en el modelo</p>
           </Reveal>

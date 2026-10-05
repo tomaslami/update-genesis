@@ -143,7 +143,7 @@ export default function Scene({ running, reduced, onReady }: Props) {
           </>
         )}
       </Canvas>
-      <NotesOverlay registry={notes} reduced={reduced} />
+      <NotesOverlay registry={notes} reduced={reduced} mode={mode} />
     </>
   )
 }

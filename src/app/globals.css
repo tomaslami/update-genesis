@@ -55,8 +55,9 @@ body {
 /* Secciones de la zona 3D. Tres modos (ver src/lib/layout-mode.ts):
    - escritorio: el texto va a un lado del modelo;
    - horizontal (pantalla angosta girada): igual que escritorio, a escala;
-   - vertical (celular, tablet): el modelo recorre la página detrás del contenido, en la
-     parte de arriba, y el texto sube sobre un velo. */
+   - vertical (celular, tablet): el modelo asoma por un costado de la pantalla (alterna de lado
+     en cada sección) y el titular va junto a él; el cuerpo del texto va en un panel debajo que
+     sube sobre el modelo. */
 :root {
   /* Espacio que ocupa la barra inferior. */
   --dock: 88px;
@@ -69,20 +70,63 @@ body {
 .zone-panel {
   min-width: 0;
 }
+/* Titular de la sección (lámina + título). En escritorio y horizontal no agrega nada al layout. */
+.zone-head {
+  display: contents;
+}
 @media (max-width: 1023px) and (orientation: portrait) {
+  /* Cada sección: arriba el "escenario" (modelo al costado + titular) y abajo el panel con el texto. */
   .zone-section {
     justify-content: flex-end;
-    padding-top: 46svh;
+    padding-top: var(--stage);
   }
-  /* El hero sube un poco para que el botón de WhatsApp quede a la vista sobre la barra. */
-  #inicio.zone-section {
-    padding-top: 30svh;
+  :root {
+    --stage: 54svh;
   }
+  /* Panel opaco: el texto nunca se lee sobre el modelo. Sube sobre él con un borde suave. */
   .zone-panel {
     margin-inline: -5.5%;
     padding-inline: 5.5%;
-    padding-top: 96px;
-    background: linear-gradient(to bottom, rgba(0, 35, 55, 0), rgba(0, 35, 55, 0.92) 96px, rgba(0, 35, 55, 0.96));
+    padding-top: 56px;
+    background: linear-gradient(to bottom, rgba(0, 35, 55, 0), #002337 56px);
+  }
+  .zone-head {
+    display: block;
+    position: absolute;
+    top: 13svh;
+    width: 50%;
+  }
+  .zone-head > * + * {
+    margin-top: 14px;
+  }
+  /* El titular va del lado libre: el modelo asoma por el contrario (ver SIDES en anatomy/config.ts). */
+  #inicio .zone-head,
+  #abordaje .zone-head {
+    left: 5.5%;
+  }
+  #kinesiologia .zone-head,
+  #servicios .zone-head {
+    right: 5.5%;
+  }
+  .zone-head .lbl > span:first-child {
+    width: 16px;
+  }
+  .zone-head .lbl-word {
+    display: none;
+  }
+  .zone-head .h2,
+  .zone-head h1 {
+    font-size: 24px;
+    line-height: 28px;
+    margin: 0;
+  }
+  .zone-head h1 {
+    font-size: 26px;
+    line-height: 30px;
+  }
+  #servicios .zone-head .h2 {
+    font-size: 21px;
+    line-height: 25px;
   }
 }
 @media (max-width: 1023px) and (orientation: landscape) {
@@ -187,6 +231,12 @@ body {
   .anat-note__label {
     font-size: 10px;
     line-height: 13px;
+  }
+}
+/* En vertical las etiquetas caen sobre el lado del titular: línea guía corta para no pisarlo. */
+@media (max-width: 1023px) and (orientation: portrait) {
+  .anat-note__line {
+    width: 14px;
   }
 }
 .pulse-dot {

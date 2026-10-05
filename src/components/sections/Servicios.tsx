@@ -69,14 +69,16 @@ export default function Servicios() {
     <section id="servicios" className="zone-section relative z-10 min-h-[100svh]">
       <div className="wrap grid w-full lg:grid-cols-2 lsc:grid-cols-2">
         <div data-shield className="zone-panel flex flex-col gap-4 pt-16 pb-36 lg:col-start-2 lg:py-32 lsc:col-start-2 lsc:gap-3 lsc:py-14">
-          <Reveal>
-            <SectionLabel n="04" dark>
-              Servicios
-            </SectionLabel>
-          </Reveal>
-          <Reveal delay={0.05}>
-            <h2 className="h2 mb-6 lsc:mb-2">SERVICIOS DE REHABILITACIÓN</h2>
-          </Reveal>
+          <div className="zone-head">
+            <Reveal>
+              <SectionLabel n="04" dark>
+                Servicios
+              </SectionLabel>
+            </Reveal>
+            <Reveal delay={0.05}>
+              <h2 className="h2 mb-6 lsc:mb-2">SERVICIOS DE REHABILITACIÓN</h2>
+            </Reveal>
+          </div>
           <div className="border-b border-white/20">
             {SERVICES.map((s, i) => {
               const on = s.id === current

@@ -45,6 +45,7 @@ export default function Hero() {
       </div>
       <div className="wrap grid w-full lg:grid-cols-2 lsc:grid-cols-2">
         <div data-shield className="zone-panel flex flex-col gap-7 pb-28 lg:pb-0 lsc:gap-3 lsc:pb-0 lsc:pt-16">
+          <div className="zone-head">
           <m.div {...rise(0)}>
             <SectionLabel n="01" dark>
               Cuerpo
@@ -64,6 +65,7 @@ export default function Hero() {
               </span>
             ))}
           </h1>
+          </div>
           <m.div {...rise(0.5)} className="text-[20px] leading-7 sm:text-2xl sm:leading-8 lsc:text-base lsc:leading-6">
             <p>Te ayudamos a</p>
             <p className="relative h-16 font-extrabold text-orange sm:h-9 lsc:h-6" aria-live="polite">

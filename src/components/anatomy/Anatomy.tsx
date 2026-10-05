@@ -35,7 +35,7 @@ const FIXED_STEP = 1 / 60
 
 type Props = {
   data: AnatomyData
-  /** Escritorio y horizontal: modelo a un lado del texto. Vertical: modelo centrado detrás del texto. */
+  /** Escritorio y horizontal: modelo a un lado del texto. Vertical: modelo asomando por un costado, junto al titular. */
   mode: LayoutMode
   reduced: boolean
   notes: NoteRegistry
@@ -172,10 +172,10 @@ export default function Anatomy({ data, mode, reduced, notes, control }: Props) 
 
     // Cámara y lado de la pantalla.
     const fov = (camera as THREE.PerspectiveCamera).fov
-    const dist = mix(A.dist, B.dist) * (portrait ? PORTRAIT.dist : 1)
+    const dist = portrait ? mix(PORTRAIT.dist[fa], PORTRAIT.dist[fb]) : mix(A.dist, B.dist)
     const visibleH = 2 * dist * Math.tan(THREE.MathUtils.degToRad(fov / 2))
     const visibleW = visibleH * (size.width / size.height)
-    const offsetX = portrait ? 0 : mix(SIDES[i0], SIDES[i0 + 1]) * visibleW * 0.23
+    const offsetX = mix(SIDES[i0], SIDES[i0 + 1]) * visibleW * (portrait ? mix(PORTRAIT.side[fa], PORTRAIT.side[fb]) : 0.23)
     const camY = mix(A.y, B.y) - (portrait ? visibleH * PORTRAIT.lift : 0)
     const k = reduced ? 0.0001 : 0.16
     // La cámara y el lado de la pantalla solo cambian entre poses: si se mueven, el modelo está "viajando".
@@ -249,7 +249,7 @@ export default function Anatomy({ data, mode, reduced, notes, control }: Props) 
     const nf = e < 0.06 ? fa : e > 0.94 ? fb : null
     if (nf !== noteFocus.current) {
       noteFocus.current = nf
-      notes.setFocus(nf)
+      notes.setFocus(nf, e < 0.5 ? SIDES[i0] : SIDES[i0 + 1])
     }
     placeNotes(notes, data.anchors, spin.current, camera as THREE.PerspectiveCamera, size.width, size.height, fa, fb, now)
 

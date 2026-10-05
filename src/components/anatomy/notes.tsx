@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import * as THREE from 'three'
 import type { Focus } from '@/lib/store'
+import type { LayoutMode } from '@/lib/layout-mode'
 import { NOTES } from './config'
 
 /**
@@ -21,7 +22,7 @@ export type NoteRegistry = {
   /** Última posición escrita, para no tocar el DOM si no cambió. */
   last: [number, number][]
   /** La pose estable que debe anotarse (null mientras el modelo viaja entre dos); la fija la capa DOM. */
-  setFocus: (f: Focus | null) => void
+  setFocus: (f: Focus | null, side: number) => void
 }
 
 export function createNoteRegistry(): NoteRegistry {
@@ -89,10 +90,13 @@ export function placeNotes(
   }
 }
 
-export function NotesOverlay({ registry, reduced }: { registry: NoteRegistry; reduced: boolean }) {
-  const [focus, setFocus] = useState<Focus | null>(null)
+/** En vertical el modelo asoma por un costado: todas las etiquetas apuntan hacia el lado libre de la pantalla. */
+const dirOf = (dir: 'left' | 'right', mode: LayoutMode, side: number) => (mode === 'portrait' ? (side > 0 ? 'left' : 'right') : dir)
+
+export function NotesOverlay({ registry, reduced, mode }: { registry: NoteRegistry; reduced: boolean; mode: LayoutMode }) {
+  const [{ focus, side }, setState] = useState<{ focus: Focus | null; side: number }>({ focus: null, side: 1 })
   useEffect(() => {
-    registry.setFocus = setFocus
+    registry.setFocus = (f, s) => setState({ focus: f, side: s })
     return () => {
       registry.setFocus = () => {}
     }
@@ -110,7 +114,7 @@ export function NotesOverlay({ registry, reduced }: { registry: NoteRegistry; re
         >
           <div style={{ position: 'absolute', pointerEvents: 'none' }}>
             <div
-              className={`anat-note anat-note--${n.dir}`}
+              className={`anat-note anat-note--${dirOf(n.dir, mode, side)}`}
               data-on={n.focus === focus}
               style={{ transitionDelay: n.focus === focus && n.delay && !reduced ? `${n.delay}s` : '0s' }}
             >
