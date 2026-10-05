@@ -28,14 +28,12 @@ type State = {
   active: SectionId
   condition: string
   service: Service
-  menuOpen: boolean
 }
 
 let state: State = {
   active: 'inicio',
   condition: CONDITIONS[0].id,
   service: 'kinesio',
-  menuOpen: false,
 }
 
 const listeners = new Set<() => void>()

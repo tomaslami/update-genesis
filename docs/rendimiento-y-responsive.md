@@ -105,7 +105,7 @@ Tres modos, definidos una sola vez en `src/lib/layout-mode.ts` y usados por el C
 | `landscape` (`lsc:`) | angosto y horizontal | El concepto de escritorio a escala: modelo a un lado, texto al otro, alternando. |
 
 - **WhatsApp vive dentro de la barra vertebral** en pantallas < 1024 px (siempre a
-  un toque y sin tapar texto); el botón flotante queda para escritorio.
+  un toque y sin tapar texto); en escritorio ocupa el mismo lugar, al pie de la columna. No hay menú ni botón flotante.
 - En vertical la pose cambia cuando el escenario de la sección (titular + modelo)
   llega a la pantalla (`layout.ts`), no al centro de la sección.
 

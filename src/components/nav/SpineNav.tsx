@@ -3,21 +3,20 @@
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { SECTIONS, WHATSAPP_URL, sectionNumber } from '@/lib/site'
-import { readingProgress, store, useStore } from '@/lib/store'
+import { readingProgress, useStore } from '@/lib/store'
 import { VertebraShape, WhatsAppIcon } from '@/components/ui/icons'
 
 /**
  * La columna es toda la navegación: arriba el isotipo (vuelve al inicio),
- * en el medio una vértebra por sección y abajo el menú. La médula se llena
+ * en el medio una vértebra por sección y abajo el acceso a WhatsApp. La médula se llena
  * de naranja con el scroll, las vértebras recorridas quedan alineadas
  * (rellenas) y la activa se enciende. Al entrar en una sección su nombre
  * aparece un momento; en desktop, al pasar el mouse, se despliega el índice.
- * En celular la misma columna se acuesta como una barra fina abajo, que además
- * lleva el acceso a WhatsApp (así nada flota encima del texto).
+ * En celular la misma columna se acuesta como una barra fina abajo, con el
+ * mismo acceso a WhatsApp al final (así nada flota encima del texto).
  */
 export default function SpineNav() {
   const active = useStore((s) => s.active)
-  const menuOpen = useStore((s) => s.menuOpen)
   const activeIdx = SECTIONS.findIndex((s) => s.id === active)
   const [flash, setFlash] = useState(true)
 
@@ -33,8 +32,6 @@ export default function SpineNav() {
       : i < activeIdx
         ? 'fill-navy stroke-navy'
         : 'fill-white stroke-navy/60 group-hover:stroke-navy'
-
-  const openMenu = () => store.set({ menuOpen: true })
 
   return (
     <>
@@ -87,16 +84,15 @@ export default function SpineNav() {
             })}
           </div>
           <span aria-hidden="true" className="my-1.5 h-px w-6 bg-navy/15" />
-          <button
-            type="button"
-            onClick={openMenu}
-            aria-expanded={menuOpen}
-            aria-controls="menu"
-            aria-label="Abrir menú"
-            className="flex h-12 w-12 items-center justify-center rounded-full text-navy transition-colors duration-300 hover:bg-surface-muted"
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Contáctanos por WhatsApp"
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-whatsapp text-white transition-colors duration-300 hover:bg-whatsapp-hover"
           >
-            <MenuIcon />
-          </button>
+            <WhatsAppIcon size={26} />
+          </a>
         </div>
       </nav>
 
@@ -137,16 +133,6 @@ export default function SpineNav() {
               </a>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={openMenu}
-            aria-expanded={menuOpen}
-            aria-controls="menu"
-            aria-label="Abrir menú"
-            className="flex h-11 w-10 shrink-0 items-center justify-center rounded-full text-navy"
-          >
-            <MenuIcon />
-          </button>
           <a
             href={WHATSAPP_URL}
             target="_blank"
@@ -179,12 +165,4 @@ function ProgressFill({ axis, className }: { axis: 'x' | 'y'; className: string 
     return readingProgress.subscribe(update)
   }, [axis])
   return <span ref={ref} className={className} style={{ transform: axis === 'y' ? 'scaleY(0)' : 'scaleX(0)' }} />
-}
-
-function MenuIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
-      <path d="M5 9h14M5 15h9" />
-    </svg>
-  )
 }
