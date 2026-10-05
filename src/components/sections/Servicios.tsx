@@ -122,8 +122,49 @@ export default function Servicios() {
             <Reveal delay={0.05}>
               <h2 className="h2 mb-6 lsc:mb-2">SERVICIOS DE REHABILITACIÓN</h2>
             </Reveal>
+            {/* Celular vertical: los servicios son un selector en el costado libre, junto al modelo. */}
+            <div role="tablist" aria-label="Servicios" className="hidden border-t border-white/20 prt:block">
+              {SERVICES.map((s, i) => {
+                const on = s.id === current
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    role="tab"
+                    id={`tab-${s.id}`}
+                    aria-selected={on}
+                    aria-controls="svc-panel"
+                    onClick={() => store.set({ service: s.id })}
+                    className={`flex min-h-[46px] w-full items-center gap-3 border-b border-white/20 text-left transition-opacity duration-300 ${
+                      on ? 'opacity-100' : 'opacity-55'
+                    }`}
+                  >
+                    <span className="lbl w-5 text-white/70">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="flex-grow text-[20px] font-bold leading-6">{s.title}</span>
+                    <span
+                      aria-hidden="true"
+                      className={`h-2.5 w-2.5 rounded-full transition-colors duration-300 ${on ? 'bg-orange' : 'bg-transparent'}`}
+                    />
+                  </button>
+                )
+              })}
+            </div>
           </div>
-          <div className="border-b border-white/20">
+          {/* Celular vertical: el servicio elegido, en un solo bloque debajo del modelo. */}
+          <m.div
+            key={current}
+            id="svc-panel"
+            role="tabpanel"
+            aria-labelledby={`tab-${current}`}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: EASE }}
+            className="hidden flex-col gap-3 text-[16px] leading-[25px] text-white/90 prt:flex"
+          >
+            <span className="lbl text-white/70">{SERVICES[idx]?.sub}</span>
+            {SERVICES[idx]?.body}
+          </m.div>
+          <div className="border-b border-white/20 prt:hidden">
             {SERVICES.map((s, i) => {
               const on = s.id === current
               return (

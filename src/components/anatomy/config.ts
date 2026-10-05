@@ -72,7 +72,7 @@ export const MAX_DPR = { desktop: 1.5, mobile: 1.3 }
  */
 export const PORTRAIT = {
   dist: { hero: 15.6, full: 15.6, cervlum: 17.5, joints: 9.5, posture: 14.5, rpg: 15.6, osteo: 9.5 } as Record<Focus, number>,
-  side: { hero: 0.38, full: 0.42, cervlum: 0.36, joints: 0.3, posture: 0.3, rpg: 0.36, osteo: 0.36 } as Record<Focus, number>,
+  side: { hero: 0.38, full: 0.42, cervlum: 0.36, joints: 0.3, posture: 0.3, rpg: 0.36, osteo: 0.42 } as Record<Focus, number>,
   lift: 0.13,
 }
 

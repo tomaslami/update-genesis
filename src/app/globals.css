@@ -83,12 +83,22 @@ body {
   :root {
     --stage: 54svh;
   }
-  /* Panel opaco: el texto nunca se lee sobre el modelo. Sube sobre él con un borde suave. */
+  /* Panel opaco: el texto nunca se lee sobre el modelo. Mismo fundido de 56 px arriba y abajo. */
   .zone-panel {
     margin-inline: -5.5%;
     padding-inline: 5.5%;
     padding-top: 56px;
-    background: linear-gradient(to bottom, rgba(0, 35, 55, 0), #002337 56px);
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 35, 55, 0),
+      #002337 56px,
+      #002337 calc(100% - 56px),
+      rgba(0, 35, 55, 0)
+    );
+  }
+  /* Abordaje: la grilla de opciones necesita más lugar abajo. */
+  #abordaje.zone-section {
+    padding-top: 47svh;
   }
   .zone-head {
     display: block;

@@ -26,17 +26,17 @@ export default function Abordaje() {
           <Reveal delay={0.1}>
             <p className="lbl mb-2 text-white/70 lg:mb-4">Toca cada ítem para ver la zona en el modelo</p>
           </Reveal>
-          {/* Celular: fila de chips, así el modelo queda a la vista arriba. */}
-          <ul className="-mx-[5.5%] flex snap-x gap-2 overflow-x-auto px-[5.5%] pb-1 lg:hidden" aria-label="Problemáticas">
+          {/* Celular: grilla de dos columnas; se ven todas las opciones y no hay scroll horizontal. */}
+          <ul className="grid grid-cols-2 gap-2 lg:hidden" aria-label="Problemáticas">
             {CONDITIONS.map((c) => {
               const on = c.id === current
               return (
-                <li key={c.id} className="shrink-0 snap-start">
+                <li key={c.id} className="flex">
                   <button
                     type="button"
                     aria-pressed={on}
                     onClick={() => pick(c.id)}
-                    className={`min-h-11 rounded-full border px-4 text-[15px] font-bold transition-colors duration-300 ${
+                    className={`flex min-h-12 w-full items-center rounded-2xl border px-3.5 py-1.5 text-left text-[14px] font-bold leading-[18px] transition-colors duration-300 ${
                       on ? 'border-orange bg-orange text-navy' : 'border-white/40 text-white'
                     }`}
                   >
