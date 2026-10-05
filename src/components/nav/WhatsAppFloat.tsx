@@ -15,7 +15,7 @@ export default function WhatsAppFloat() {
       aria-label="Contáctanos por WhatsApp"
       aria-hidden={hidden}
       tabIndex={hidden ? -1 : undefined}
-      className={`fixed bottom-6 right-6 z-40 hidden h-[60px] items-center gap-2.5 rounded-full bg-whatsapp pl-4 pr-6 font-extrabold text-navy shadow-lg transition-all duration-300 hover:bg-whatsapp-hover lg:inline-flex ${
+      className={`fixed bottom-6 right-6 z-40 hidden h-[60px] items-center gap-2.5 rounded-full bg-whatsapp pl-4 pr-6 font-extrabold text-white shadow-lg transition-all duration-300 hover:bg-whatsapp-hover lg:inline-flex ${
         hidden ? 'pointer-events-none translate-y-4 opacity-0' : 'opacity-100'
       }`}
     >

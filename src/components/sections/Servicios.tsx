@@ -6,6 +6,16 @@ import { store, useStore, type Service } from '@/lib/store'
 import Reveal, { EASE } from '@/components/ui/Reveal'
 import SectionLabel from '@/components/ui/SectionLabel'
 
+const KINESIO_INDICATIONS = [
+  'Dolor cervical y lumbar',
+  'Lesiones musculares y articulares',
+  'Rehabilitación traumatológica y postquirúrgica',
+  'Alteraciones posturales',
+  'Recuperación funcional',
+  'Rehabilitación deportiva',
+  'Prevención de lesiones',
+]
+
 const RPG_INDICATIONS = [
   'Dolor de espalda y cuello',
   'Alteraciones posturales',
@@ -16,11 +26,50 @@ const RPG_INDICATIONS = [
   'Alteraciones musculoesqueléticas',
 ]
 
-const SERVICES: { id: Service; title: string; sub: string; body: ReactNode }[] = [
+/** Lista de indicaciones como etiquetas, con su título. */
+function Indications({ title, items }: { title: string; items: string[] }) {
+  return (
+    <>
+      <span className="lbl mt-2 text-white/70">{title}</span>
+      <ul className="flex flex-wrap gap-2">
+        {items.map((x) => (
+          <li key={x} className="rounded-full border border-white/40 px-3.5 py-1.5 text-[15px] leading-[22px]">
+            {x}
+          </li>
+        ))}
+      </ul>
+    </>
+  )
+}
+
+const SERVICES: { id: Service; title: string; sub: string; zone: string; body: ReactNode }[] = [
+  {
+    id: 'kinesio',
+    title: 'Kinesiología',
+    sub: 'Movimiento y función',
+    zone: 'Abordaje global',
+    body: (
+      <>
+        <p>
+          Nos orientamos a la prevención, evaluación y tratamiento de alteraciones del movimiento y la función física.
+        </p>
+        <p>
+          A través de diferentes técnicas y ejercicios terapéuticos, buscamos disminuir el dolor, recuperar la
+          movilidad, mejorar la fuerza y favorecer la función que busca cada persona.
+        </p>
+        <Indications title="¿Qué podemos abordar?" items={KINESIO_INDICATIONS} />
+        <p>
+          Cada tratamiento se planifica de manera individual, teniendo en cuenta las necesidades, objetivos y evolución
+          de cada persona.
+        </p>
+      </>
+    ),
+  },
   {
     id: 'osteo',
     title: 'Osteopatía',
     sub: 'Articulaciones y estructura',
+    zone: 'Articulaciones',
     body: (
       <>
         <p>
@@ -39,6 +88,7 @@ const SERVICES: { id: Service; title: string; sub: string; body: ReactNode }[] =
     id: 'rpg',
     title: 'RPG',
     sub: 'Reeducación Postural Global',
+    zone: 'Cadena posterior',
     body: (
       <>
         <p>
@@ -49,14 +99,7 @@ const SERVICES: { id: Service; title: string; sub: string; body: ReactNode }[] =
           Mediante posturas terapéuticas progresivas, respiración y trabajo activo del paciente, se busca mejorar la
           flexibilidad, disminuir tensiones y favorecer una mejor organización corporal.
         </p>
-        <span className="lbl mt-2 text-white/70">¿Cuándo está indicado?</span>
-        <ul className="flex flex-wrap gap-2">
-          {RPG_INDICATIONS.map((x) => (
-            <li key={x} className="rounded-full border border-white/40 px-3.5 py-1.5 text-[15px] leading-[22px]">
-              {x}
-            </li>
-          ))}
-        </ul>
+        <Indications title="¿Cuándo está indicado?" items={RPG_INDICATIONS} />
       </>
     ),
   },
@@ -64,6 +107,7 @@ const SERVICES: { id: Service; title: string; sub: string; body: ReactNode }[] =
 
 export default function Servicios() {
   const current = useStore((s) => s.service)
+  const idx = SERVICES.findIndex((s) => s.id === current)
 
   return (
     <section id="servicios" className="zone-section relative z-10 min-h-[100svh]">
@@ -123,8 +167,10 @@ export default function Servicios() {
             })}
           </div>
           <p className="lbl mt-2 flex justify-between text-white/70" aria-live="polite">
-            <span>Fig. 04 — {current === 'osteo' ? 'Articulaciones' : 'Cadena posterior'}</span>
-            <span>{current === 'osteo' ? '01' : '02'} / 02</span>
+            <span>Fig. 04 — {SERVICES[idx]?.zone}</span>
+            <span>
+              {String(idx + 1).padStart(2, '0')} / {String(SERVICES.length).padStart(2, '0')}
+            </span>
           </p>
         </div>
       </div>

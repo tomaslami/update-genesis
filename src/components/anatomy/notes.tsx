@@ -39,6 +39,43 @@ const FOLLOW_MS = 800
 /** Cambio mínimo (px) que justifica reescribir la posición. */
 const EPS = 0.001
 
+/** Tamaño aproximado de punto + línea + etiqueta (px) para saber si una etiqueta pisa un texto. */
+const LABEL_W = 150
+const LABEL_H = 36
+
+/**
+ * En pantallas angostas los textos de la página pasan por donde está el modelo
+ * (el modelo queda fijo y el texto sube): la etiqueta que quedaría encima de un
+ * texto se apaga con un fundido y vuelve cuando el texto se aparta.
+ * `texts` y `sy` salen del layout ya medido: no se lee el DOM.
+ */
+export function hideNotesOverTexts(
+  reg: NoteRegistry,
+  texts: { l: number; r: number; t: number; b: number }[],
+  sy: number,
+  dirOf: (i: number) => 'left' | 'right',
+) {
+  for (let i = 0; i < NOTES.length; i++) {
+    const el = reg.els[i]
+    if (!el) continue
+    const [x, y] = reg.last[i]
+    if (Number.isNaN(x)) continue
+    const x0 = dirOf(i) === 'left' ? x - LABEL_W : x
+    const x1 = x0 + LABEL_W
+    const y0 = y - LABEL_H / 2
+    const y1 = y + LABEL_H / 2
+    let hit = false
+    for (const r of texts) {
+      if (r.r > x0 && r.l < x1 && r.b - sy > y0 && r.t - sy < y1) {
+        hit = true
+        break
+      }
+    }
+    const o = hit ? '0' : '1'
+    if (el.style.opacity !== o) el.style.opacity = o
+  }
+}
+
 const pos = new THREE.Vector3()
 const delta = new THREE.Vector3()
 const camPos = new THREE.Vector3()
@@ -110,7 +147,7 @@ export function NotesOverlay({ registry, reduced, mode }: { registry: NoteRegist
           ref={(el) => {
             registry.els[i] = el
           }}
-          style={{ position: 'absolute', top: 0, left: 0, transformOrigin: '0 0' }}
+          style={{ position: 'absolute', top: 0, left: 0, transformOrigin: '0 0', transition: 'opacity 0.25s ease-out' }}
         >
           <div style={{ position: 'absolute', pointerEvents: 'none' }}>
             <div

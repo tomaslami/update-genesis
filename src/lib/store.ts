@@ -4,7 +4,7 @@ import type { SectionId } from './site'
 
 /** Zona del cuerpo que el modelo 3D ilumina. */
 export type Focus = 'hero' | 'full' | 'cervlum' | 'joints' | 'posture' | 'rpg' | 'osteo'
-export type Service = 'rpg' | 'osteo'
+export type Service = 'kinesio' | 'rpg' | 'osteo'
 
 export type Condition = {
   id: string
@@ -34,7 +34,7 @@ type State = {
 let state: State = {
   active: 'inicio',
   condition: CONDITIONS[0].id,
-  service: 'osteo',
+  service: 'kinesio',
   menuOpen: false,
 }
 
@@ -97,7 +97,8 @@ export function focusFor(s: State): Focus {
     case 'abordaje':
       return CONDITIONS.find((c) => c.id === s.condition)?.focus ?? 'full'
     case 'servicios':
-      return s.service
+      // Kinesiología es el abordaje global: la misma pose del cuerpo entero que en su lámina.
+      return s.service === 'kinesio' ? 'full' : s.service
     default:
       return 'full'
   }

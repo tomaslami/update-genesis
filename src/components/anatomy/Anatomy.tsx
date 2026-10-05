@@ -7,13 +7,13 @@ import { markModelIntroDone } from '@/lib/intro'
 import { focusFor, store, type Focus } from '@/lib/store'
 import type { LayoutMode } from '@/lib/layout-mode'
 import type { SectionId } from '@/lib/site'
-import { AMBIENT_FPS, INTERACTION_MS, PORTRAIT, SIDES, VIEWS, ZONE } from './config'
+import { AMBIENT_FPS, INTERACTION_MS, NOTES, PORTRAIT, SIDES, VIEWS, ZONE } from './config'
 import type { RenderControl } from './control'
 import { damp, damp3, dampColor } from './damp'
 import type { Anatomy as AnatomyData } from './geometry'
 import { usePageLayout } from './layout'
 import { createMaterials, disposeMaterials } from './materials'
-import { placeNotes, type NoteRegistry } from './notes'
+import { hideNotesOverTexts, placeNotes, type NoteRegistry } from './notes'
 import { BONE, BONE_DIM, BONE_LIT, DISC, SILHOUETTE } from './palette'
 
 /** Estado del store con la sección forzada a la de la zona (se reutiliza: no se crea un objeto por cuadro). */
@@ -252,6 +252,11 @@ export default function Anatomy({ data, mode, reduced, notes, control }: Props) 
       notes.setFocus(nf, e < 0.5 ? SIDES[i0] : SIDES[i0 + 1])
     }
     placeNotes(notes, data.anchors, spin.current, camera as THREE.PerspectiveCamera, size.width, size.height, fa, fb, now)
+    // Celular: el texto sube por donde está el modelo; las etiquetas que quedarían encima se apagan.
+    if (mode !== 'desktop' && L) {
+      const side = e < 0.5 ? SIDES[i0] : SIDES[i0 + 1]
+      hideNotesOverTexts(notes, L.texts, sy, (i) => (portrait ? (side > 0 ? 'left' : 'right') : NOTES[i].dir))
+    }
 
     // ¿Hay un texto delante del modelo? Todo con posiciones ya medidas: sin leer el layout.
     // (En vertical el texto siempre sube sobre el modelo, con su propio velo: no se apaga.)

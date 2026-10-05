@@ -152,7 +152,7 @@ export default function SpineNav() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Contáctanos por WhatsApp"
-            className="ml-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-whatsapp text-navy transition-colors duration-300 active:bg-whatsapp-hover"
+            className="ml-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-whatsapp text-white transition-colors duration-300 active:bg-whatsapp-hover"
           >
             <WhatsAppIcon size={22} />
           </a>

@@ -114,19 +114,20 @@ body {
   .zone-head .lbl-word {
     display: none;
   }
+  /* El titular ocupa la mitad de la pantalla: el tamaño baja con el ancho para que la palabra más larga entre. */
   .zone-head .h2,
   .zone-head h1 {
-    font-size: 24px;
-    line-height: 28px;
+    font-size: min(24px, 6.4vw);
+    line-height: 1.17;
     margin: 0;
   }
   .zone-head h1 {
-    font-size: 26px;
-    line-height: 30px;
+    font-size: min(26px, 6.8vw);
+    line-height: 1.16;
   }
   #servicios .zone-head .h2 {
-    font-size: 21px;
-    line-height: 25px;
+    font-size: min(21px, 5.4vw);
+    line-height: 1.19;
   }
 }
 @media (max-width: 1023px) and (orientation: landscape) {
