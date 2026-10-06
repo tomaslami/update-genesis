@@ -31,19 +31,26 @@ const hasWebGLApi = () => typeof WebGL2RenderingContext !== 'undefined' || typeo
  * Servicios): el lienzo queda pegado a la pantalla mientras pasan las
  * secciones y se retira al terminar Servicios.
  *
- * Mientras el modelo se prepara se ve la columna 2D; cuando el primer cuadro
- * está listo, la columna se funde y el modelo entra con su animación.
+ * Mientras el modelo se prepara se ve la columna 2D. El modelo se muestra
+ * cuando está listo y la columna terminó de dibujarse (más una pausa breve):
+ * entra con un fundido en el mismo lugar del dibujo, que se desvanece mientras
+ * la columna 3D se arma.
  *
  * Coreografía de carga: el paquete 3D se descarga enseguida en segundo plano,
  * pero se ejecuta (y se prepara la GPU) recién cuando terminó la animación de
  * entrada del hero: así nada le quita cuadros al titular.
  */
+/** Pausa entre que la columna 2D termina de dibujarse y empieza a entrar el modelo. */
+const REVEAL_PAUSE_MS = 250
+
 export default function AnatomyStage() {
   const zone = useRef<HTMLDivElement>(null)
   const [load, setLoad] = useState(false)
   const [running, setRunning] = useState(true)
   const [reduced, setReduced] = useState(false)
-  const [shown, setShown] = useState(false)
+  const [ready, setReady] = useState(false)
+  const [drawn, setDrawn] = useState(false)
+  const [reveal, setReveal] = useState(false)
   const [failed, setFailed] = useState(false)
   const [placeholderGone, setPlaceholderGone] = useState(false)
 
@@ -71,7 +78,14 @@ export default function AnatomyStage() {
     return () => io.disconnect()
   }, [])
 
-  const onReady = useCallback(() => setShown(true), [])
+  useEffect(() => {
+    if (!ready || !drawn) return
+    const id = window.setTimeout(() => setReveal(true), REVEAL_PAUSE_MS)
+    return () => window.clearTimeout(id)
+  }, [ready, drawn])
+
+  const onReady = useCallback(() => setReady(true), [])
+  const onDrawn = useCallback(() => setDrawn(true), [])
   const onError = useCallback(() => setFailed(true), [])
 
   return (
@@ -79,16 +93,16 @@ export default function AnatomyStage() {
       <div className="sticky top-0 h-[100svh] w-full">
         {!placeholderGone && (
           <div
-            className="absolute inset-0 transition-opacity duration-700 ease-out motion-reduce:transition-none"
-            style={{ opacity: shown ? 0 : 1 }}
-            onTransitionEnd={() => shown && setPlaceholderGone(true)}
+            className="absolute inset-0 transition-opacity delay-150 duration-1000 ease-in-out motion-reduce:transition-none"
+            style={{ opacity: reveal ? 0 : 1 }}
+            onTransitionEnd={() => reveal && setPlaceholderGone(true)}
           >
-            <SpinePlaceholder />
+            <SpinePlaceholder onDrawn={onDrawn} />
           </div>
         )}
         {load && !failed && hasWebGLApi() && (
           <SceneBoundary onError={onError}>
-            <Scene running={running} reduced={reduced} onReady={onReady} />
+            <Scene running={running} reduced={reduced} onReady={onReady} reveal={reveal} />
           </SceneBoundary>
         )}
       </div>

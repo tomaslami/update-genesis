@@ -1,10 +1,11 @@
-import type * as THREE from 'three'
+import * as THREE from 'three'
 import { buildAnchors } from './anchors'
 import { buildChain } from './chain'
 import { buildFemurs } from './femur'
-import { pelvisLayout, sacrumGeometry, wingGeometry } from './pelvis'
+import { buildSacrum, lumbosacralDisc, pelvisLayout, pubicSymphysis, wingGeometry } from './pelvis'
 import { buildDiscs, layoutSpine, REGIONS, TOP, vertebraTemplate } from './spine'
 import { buildThorax } from './thorax'
+import { merge } from './buffers'
 import type { Anatomy, Region } from './types'
 
 export type { Anatomy, Region, Vertebra } from './types'
@@ -12,8 +13,8 @@ export type { Anatomy, Region, Vertebra } from './types'
 /**
  * Modelo anatómico procedural: columna con sus curvas, vértebras con su
  * anatomía por región (cuerpo, pedículos, arco, apófisis), discos, costillas
- * con cartílago, esternón, pelvis (eco del isotipo de Génesis), sacro con
- * forámenes, cóccix y el inicio de los fémures.
+ * con cartílago, esternón, pelvis (eco del isotipo de Génesis), sacro
+ * anatómico con sus agujeros, cóccix, disco L5–S1 y el inicio de los fémures.
  * Todo se genera en código: no hay archivo .glb que descargar.
  * Ejes: +y arriba, +z adelante (el frente del cuerpo mira a la cámara).
  *
@@ -28,18 +29,19 @@ function* anatomySteps(): Generator<void, Anatomy, void> {
     yield
   }
   const vertebrae = layoutSpine(templates)
-  const discs = buildDiscs(vertebrae)
+  const pelvis = pelvisLayout(vertebrae)
+  const discs = merge([buildDiscs(vertebrae), lumbosacralDisc(pelvis.l5, pelvis.origin), pubicSymphysis(pelvis.wingMatrices)])
   yield
   const { ribs, cartilage } = yield* buildThorax(vertebrae)
   yield
 
-  const pelvis = pelvisLayout(vertebrae)
   const wings: Anatomy['wings'] = []
   for (const [i, s] of [-1, 1].entries()) {
     wings.push({ geometry: wingGeometry(s), matrix: pelvis.wingMatrices[i] })
     yield
   }
-  const sacrum = { geometry: sacrumGeometry(), matrix: pelvis.sacrumMatrix }
+  // El sacro se arma ya ubicado en el modelo: su matriz es la identidad.
+  const sacrum = { geometry: yield* buildSacrum(pelvis.place, pelvis.l5), matrix: new THREE.Matrix4() }
   yield
   const femurs = buildFemurs(pelvis.hips)
   yield

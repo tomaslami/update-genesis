@@ -309,7 +309,7 @@ body {
 }
 
 /* Columna de carga mientras llega el modelo 3D. */
-.spine-placeholder span {
+.spine-placeholder .v {
   animation: stack 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 @keyframes stack {
@@ -344,7 +344,7 @@ body {
   }
   .hero-photo,
   .pulse-ring,
-  .spine-placeholder span {
+  .spine-placeholder .v {
     animation: none;
   }
   /* Sin animación el anillo del pulso no se muestra (el punto queda como siempre). */

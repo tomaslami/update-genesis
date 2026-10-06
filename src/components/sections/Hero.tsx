@@ -30,8 +30,9 @@ export default function Hero() {
 
   return (
     <section id="inicio" className="zone-section relative z-10 min-h-[100svh]">
-      {/* Encabezado de la lámina: el logo aparece una vez y se va con el scroll. */}
-      <div className="wrap absolute inset-x-0 top-0 pt-6">
+      {/* Encabezado de la lámina: el logo aparece una vez y se va con el scroll.
+          `data-shield`: las etiquetas del modelo no se dibujan encima del logo. */}
+      <div data-shield className="wrap absolute inset-x-0 top-0 pt-6">
         <m.a
           href="#inicio"
           aria-label="Génesis"

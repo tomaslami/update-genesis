@@ -74,7 +74,9 @@ export default function Abordaje() {
           </ul>
           <p className="lbl mt-2 flex justify-between text-white/70" aria-live="polite">
             <span>Fig. 03 — {CONDITIONS[idx]?.zone}</span>
-            <span>{String(idx + 1).padStart(2, '0')} / 07</span>
+            <span>
+              {String(idx + 1).padStart(2, '0')} / {String(CONDITIONS.length).padStart(2, '0')}
+            </span>
           </p>
         </div>
       </div>

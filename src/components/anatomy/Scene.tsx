@@ -76,16 +76,19 @@ type Props = {
   /** La zona anatómica está en pantalla (si no, no se dibuja nada). */
   running: boolean
   reduced: boolean
-  /** El primer cuadro ya se dibujó: el modelo empieza a mostrarse. */
+  /** El modelo está preparado (el primer cuadro, invisible, ya se dibujó): puede mostrarse. */
   onReady: () => void
+  /** Mostrar el modelo: entra con un fundido y su animación de entrada. */
+  reveal: boolean
 }
 
 /**
  * Lienzo del modelo. La preparación va por etapas, cada una en su propia tarea
  * corta: contexto WebGL → entorno → prefiltrado → modelo → shaders (en
- * paralelo) → primer cuadro invisible → fundido de entrada.
+ * paralelo) → primer cuadro invisible → espera a `reveal` → fundido y entrada.
+ * Hasta mostrarse no dibuja nada más: la animación de entrada empieza con el fundido.
  */
-export default function Scene({ running, reduced, onReady }: Props) {
+export default function Scene({ running, reduced, onReady, reveal }: Props) {
   const mode = useLayoutMode()
   const data = useAnatomyData()
   const [envReady, setEnvReady] = useState(false)
@@ -107,13 +110,14 @@ export default function Scene({ running, reduced, onReady }: Props) {
   useEffect(() => {
     if (warm) onReady()
   }, [warm, onReady])
+  const visible = warm && reveal
 
   return (
     <>
       <Canvas
         key={composer ? 'composer' : 'direct'}
         dpr={tier >= 1 ? 1 : [1, mode === 'desktop' ? MAX_DPR.desktop : MAX_DPR.mobile]}
-        frameloop={running && warm ? 'demand' : 'never'}
+        frameloop={running && visible ? 'demand' : 'never'}
         gl={composer ? GL_COMPOSER : GL_DIRECT}
         onCreated={({ gl }) => {
           gl.toneMapping = THREE.AgXToneMapping
@@ -123,9 +127,9 @@ export default function Scene({ running, reduced, onReady }: Props) {
         style={{
           width: '100%',
           height: '100%',
-          // Entra con un fundido: el modelo aparece cuando ya está listo, no a tirones.
-          opacity: warm ? 1 : 0,
-          transition: reduced ? 'none' : 'opacity 900ms cubic-bezier(0.22, 1, 0.36, 1)',
+          // Entra con un fundido parejo mientras se arma: aparece cuando ya está listo, no a tirones.
+          opacity: visible ? 1 : 0,
+          transition: reduced ? 'none' : 'opacity 1200ms cubic-bezier(0.45, 0, 0.25, 1)',
         }}
       >
         <Governor control={control} tier={tier} onTier={setTier} />

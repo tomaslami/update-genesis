@@ -20,8 +20,6 @@ export const CONDITIONS: Condition[] = [
   { id: 'trauma', label: 'Rehabilitación traumatológica y postquirúrgica', focus: 'full', zone: 'Abordaje global' },
   { id: 'postura', label: 'Alteraciones posturales', focus: 'posture', zone: 'Eje postural' },
   { id: 'funcional', label: 'Recuperación funcional', focus: 'full', zone: 'Abordaje global' },
-  { id: 'deportiva', label: 'Rehabilitación deportiva', focus: 'full', zone: 'Abordaje global' },
-  { id: 'prevencion', label: 'Prevención de lesiones', focus: 'full', zone: 'Abordaje global' },
 ]
 
 type State = {

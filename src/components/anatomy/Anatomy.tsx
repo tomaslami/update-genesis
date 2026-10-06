@@ -29,8 +29,17 @@ const zoneFocus = (i: number): Focus => {
 /** Zonas del hueso que se iluminan por separado. */
 const LIT_KEYS = ['C', 'T', 'L', 'pelvis', 'femur'] as const
 
-/** Entrada: las vértebras se apilan de arriba hacia abajo (0.9 s cada una, escalonadas) y luego aparecen las costillas. */
+/**
+ * Entrada: la pelvis sube a su lugar, las vértebras se apilan sobre ella de
+ * arriba hacia abajo (0.9 s cada una, escalonadas), los discos aparecen con un
+ * fundido y al final las costillas.
+ */
 const INTRO_END = 2.4
+/** Pelvis: cuándo empieza a subir, cuánto dura y desde qué distancia (por debajo de su lugar). */
+const PELVIS_IN = { start: 0.1, duration: 1.1, rise: 0.35 }
+/** Discos: cuándo empiezan a aparecer y cuánto dura el fundido. */
+const DISCS_IN = { start: 0.35, duration: 1.2 }
+const DISC_OPACITY = 0.9
 const FIXED_STEP = 1 / 60
 
 type Props = {
@@ -52,12 +61,13 @@ type Props = {
  * scroll, el puntero, un cambio de zona o un cambio de tamaño.
  */
 export default function Anatomy({ data, mode, reduced, notes, control }: Props) {
-  const { camera, size, invalidate } = useThree()
+  const { camera, size, invalidate, frameloop } = useThree()
   const mats = useMemo(createMaterials, [])
   useEffect(() => () => disposeMaterials(mats), [mats])
 
   const root = useRef<THREE.Group>(null!)
   const spin = useRef<THREE.Group>(null!)
+  const pelvis = useRef<THREE.Group>(null!)
   const vertRefs = useRef<(THREE.Mesh | null)[]>([])
   const haloRefs = useRef<(THREE.Mesh | null)[]>([])
   const flowRefs = useRef<(THREE.Mesh | null)[]>([])
@@ -111,6 +121,12 @@ export default function Anatomy({ data, mode, reduced, notes, control }: Props) 
     }
   }, [invalidate, reduced])
 
+  // El lienzo pasa de no dibujar a dibujar a demanda cuando se muestra (o al volver a la zona):
+  // se pide el primer cuadro enseguida, sin esperar al scroll o al puntero.
+  useEffect(() => {
+    if (frameloop !== 'never') invalidate()
+  }, [frameloop, invalidate])
+
   const portrait = mode === 'portrait'
 
   useFrame((state, delta) => {
@@ -120,7 +136,8 @@ export default function Anatomy({ data, mode, reduced, notes, control }: Props) 
     // Tras una pausa el modelo sigue donde estaba: no se integra el tiempo dormido.
     const dt = delta > 0.1 ? FIXED_STEP : delta
     const t = state.clock.elapsedTime
-    if (start.current === null) start.current = t
+    const first = start.current === null
+    start.current ??= t
     const since = t - start.current
     const intro = !reduced && since < INTRO_END
     if (!intro) markModelIntroDone()
@@ -140,6 +157,11 @@ export default function Anatomy({ data, mode, reduced, notes, control }: Props) 
         const sc = 0.4 + 0.6 * e
         m.scale.set(v.scale[0] * sc, v.scale[1] * sc, v.scale[2] * sc)
       })
+      const q = reduced ? 1 : THREE.MathUtils.clamp((since - PELVIS_IN.start) / PELVIS_IN.duration, 0, 1)
+      if (q < 1) finished = false
+      pelvis.current.position.y = -Math.pow(1 - q, 3) * PELVIS_IN.rise
+      const d = reduced ? 1 : THREE.MathUtils.clamp((since - DISCS_IN.start) / DISCS_IN.duration, 0, 1)
+      mats.disc.opacity = DISC_OPACITY * d * d * (3 - 2 * d)
       introDone.current = finished
     }
 
@@ -176,7 +198,12 @@ export default function Anatomy({ data, mode, reduced, notes, control }: Props) 
     const visibleH = 2 * dist * Math.tan(THREE.MathUtils.degToRad(fov / 2))
     const visibleW = visibleH * (size.width / size.height)
     const offsetX = mix(SIDES[i0], SIDES[i0 + 1]) * visibleW * (portrait ? mix(PORTRAIT.side[fa], PORTRAIT.side[fb]) : 0.23)
-    const camY = mix(A.y, B.y) - (portrait ? visibleH * PORTRAIT.lift : 0)
+    const camY = mix(A.y, B.y) - (portrait ? visibleH * mix(PORTRAIT.lift[fa], PORTRAIT.lift[fb]) : 0)
+    // Primer cuadro: la cámara ya está en la pose; el modelo aparece en su lugar, no viaja desde el centro.
+    if (first) {
+      root.current.position.x = offsetX
+      camera.position.set(0, camY, dist)
+    }
     const k = reduced ? 0.0001 : 0.16
     // La cámara y el lado de la pantalla solo cambian entre poses: si se mueven, el modelo está "viajando".
     const shifted = damp(root.current.position, 'x', offsetX, k, dt)
@@ -333,11 +360,13 @@ export default function Anatomy({ data, mode, reduced, notes, control }: Props) 
         <mesh geometry={data.discs} material={mats.disc} />
         <mesh geometry={data.ribs} material={mats.ribs} renderOrder={2} />
         <mesh geometry={data.cartilage} material={mats.cartilage} renderOrder={2} />
-        <mesh geometry={data.sacrum.geometry} material={mats.pelvis} matrixAutoUpdate={false} matrix={data.sacrum.matrix} />
-        {data.wings.map((w, i) => (
-          <mesh key={i} geometry={w.geometry} material={mats.pelvis} matrixAutoUpdate={false} matrix={w.matrix} />
-        ))}
-        <mesh geometry={data.femurs} material={mats.femur} />
+        <group ref={pelvis}>
+          <mesh geometry={data.sacrum.geometry} material={mats.pelvis} matrixAutoUpdate={false} matrix={data.sacrum.matrix} />
+          {data.wings.map((w, i) => (
+            <mesh key={i} geometry={w.geometry} material={mats.pelvis} matrixAutoUpdate={false} matrix={w.matrix} />
+          ))}
+          <mesh geometry={data.femurs} material={mats.femur} />
+        </group>
         <mesh geometry={data.chainGeometry} material={mats.chain} renderOrder={3} />
         {Array.from({ length: 10 }).map((_, i) => (
           <mesh

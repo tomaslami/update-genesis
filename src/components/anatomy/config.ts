@@ -68,12 +68,12 @@ export const MAX_DPR = { desktop: 1.5, mobile: 1.3 }
  * `SIDES`), grande y recortado por el borde, y el titular de la sección va junto a él.
  *  - `dist`: distancia de la cámara en cada pose (la columna y la pelvis caben en el alto; los primeros planos, más cerca).
  *  - `side`: cuánto se corre el modelo del centro, como fracción del ancho visible (menos en los primeros planos, para que sus puntos queden a la vista).
- *  - `lift`: cuánto se sube, como fracción del alto visible.
+ *  - `lift`: cuánto se sube, como fracción del alto visible. En el hero, más: la pelvis con el sacro queda entera sobre el panel del texto.
  */
 export const PORTRAIT = {
-  dist: { hero: 15.6, full: 15.6, cervlum: 17.5, joints: 9.5, posture: 14.5, rpg: 15.6, osteo: 9.5 } as Record<Focus, number>,
-  side: { hero: 0.38, full: 0.42, cervlum: 0.36, joints: 0.3, posture: 0.3, rpg: 0.36, osteo: 0.42 } as Record<Focus, number>,
-  lift: 0.13,
+  dist: { hero: 18.5, full: 15.6, cervlum: 17.5, joints: 9.5, posture: 14.5, rpg: 15.6, osteo: 9.5 } as Record<Focus, number>,
+  side: { hero: 0.32, full: 0.42, cervlum: 0.36, joints: 0.3, posture: 0.3, rpg: 0.36, osteo: 0.42 } as Record<Focus, number>,
+  lift: { hero: 0.225, full: 0.13, cervlum: 0.13, joints: 0.13, posture: 0.13, rpg: 0.13, osteo: 0.13 } as Record<Focus, number>,
 }
 
 /** Cuadros por segundo del movimiento "ambiente" (oscilación del hero, pulsos): el ojo no distingue más. */
